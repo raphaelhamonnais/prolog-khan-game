@@ -4,8 +4,26 @@
 reset():- retractall(i(_)), retractall(j(_)), asserta(i(0)), asserta(j(0)).
 
 display([]).
-display([[T|Q1]|Q2]):- display([T|Q1]), asserta(i(0)), nl, j(J), NJ is J+1, asserta(j(NJ)), display(Q2), !.
-display([T|Q]):- i(I), j(J), pawn(I, J, P, Player), write(T), write('-'), write(P), write(' '), NI is I+1, asserta(i(NI)), display(Q), !.
+display([[T|Q1]|Q2]):- 	display([T|Q1]),
+						asserta(i(0)),
+						nl,
+						j(J),
+						NJ is J+1,
+						asserta(j(NJ)),
+						display(Q2),
+						!.
+						
+display([T|Q]):- 		i(I),
+						j(J),
+						pawn(I, J, P, Player),
+						write(T),
+						write('-'),
+						write(P),
+						write(' '),
+						NI is I+1,
+						asserta(i(NI)),
+						display(Q),
+						!.
 
 pawn(X, Y, P, J) :-	s1j1(P, J, X, Y), !.
 pawn(X, Y, P, J) :-	s2j1(P, J, X, Y), !.
