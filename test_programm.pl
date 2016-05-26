@@ -10,21 +10,41 @@
 %%    [3,1,3,1,3,1]
 %%    [2,2,1,3,2,2]
 %%		    a
+writeWithColor(X, Z) :- 	Z =:= 1,
+							ansi_format([bold,fg(red)], X, Z),!.
+writeWithColor(X, Z) :- 	Z =:= 2,
+							ansi_format([bold,fg(blue)], X, Z),!.
+writeWithColor(X, Z) :- 	ansi_format([bold,fg(black)], X, Z),!.
 
-staticBoard( [[3,1,2,2,3,1],
-			 [2,3,1,3,1,2],
-			 [2,1,3,1,3,2],
-			 [1,3,2,2,1,3],
-			 [3,1,3,1,3,1],
-			 [2,2,1,3,2,2]]).
+
+
+board_for_choose_side( [
+				[' ', ' ', ' ',' ','c',' ',' ',' ',' ', ' '],
+				[' ', ' ', 3,1,2,2,3,1,' ', ' '],
+				[' ', ' ', 2,3,1,3,1,2,' ', ' '],
+				['d', ' ', 2,1,3,1,3,2,' ', 'b'],
+				[' ', ' ', 1,3,2,2,1,3,' ', ' '],
+				[' ', ' ', 3,1,3,1,3,1,' ', ' '],
+				[' ', ' ', 2,2,1,3,2,2,' ', ' '],
+				[' ', ' ', ' ',' ','a',' ',' ',' ',' ', ' ']
+			 ]).
 
 displayList([]).
-displayList([T|Q]) :- write(' '), write(T), displayList(Q).
-displayBoard([]).
-displayBoard([T|Q]) :- displayList(T), nl, displayBoard(Q).
+displayList([T|Q]) :- write(' '),
+					writeWithColor(' ~w', [T]),
+					 %write(T),
+					 displayList(Q),!.
 
-displayStaticBoard :- staticBoard(X),
-						displayBoard(X), !.
+
+displayBoardClassic([]).
+displayBoardClassic([T|Q]) :- displayList(T), nl, displayBoardClassic(Q).
+
+displayBoardWithIndex([]).
+displayBoardWithIndex([T|Q]) :- displayList(T), nl, displayBoardWithIndex(Q).
+
+display_board_for_choose_side([]).
+display_board_for_choose_side :- board_for_choose_side(X),
+						displayBoardClassic(X), !.
 
 
 %% ===============================================================================
@@ -39,6 +59,7 @@ chooseBoardDisplay('a', [[3,1,2,2,3,1],
 					    [3,1,3,1,3,1],
 					    [2,2,1,3,2,2]]
 					).
+
 chooseBoardDisplay('A', [[3,1,2,2,3,1],
 					    [2,3,1,3,1,2],
 					    [2,1,3,1,3,2],
@@ -91,6 +112,8 @@ chooseBoardDisplay('D', [[1,2,2,3,1,2],
 						 [3,2,2,1,3,2]]
 						).
 
+:- dynamic (activeBoard/1).
+
 
 
 
@@ -102,8 +125,17 @@ askDisplayToPlayer(X) :- 	write('Please choose you side : a, b, c or d.'),
 							nl,
 							read(X).
 
-initBoard(BOARD) :- displayStaticBoard(),
-					askDisplayToPlayer(VAL),
-					chooseBoardDisplay(VAL, BOARD),
-					displayBoard(BOARD),!.
+initBoard() :- 	display_board_for_choose_side(),
+				askDisplayToPlayer(VAL),
+				chooseBoardDisplay(VAL, BOARD),
+				retractall(activeBoard(_)),
+				asserta(activeBoard(BOARD)),
+				displayBoardWithIndex(BOARD),
+				!.
+
+displayActiveBoard() :- activeBoard(BOARD),
+						displayBoardWithIndex(BOARD),
+						!.
+
+
 
