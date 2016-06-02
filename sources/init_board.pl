@@ -124,6 +124,7 @@ initBoard() :- 	display_board_for_choose_side(),
 				chooseBoardDisplay(VAL, BOARD),
 				retractall(activeBoard(_)),
 				asserta(activeBoard(BOARD)),
+				nl, write('Voici la disposition que vous avez choisie :'),nl, nl,
 				displayBoardWithIndex(BOARD),
 				!.
 
