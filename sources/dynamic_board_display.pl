@@ -44,23 +44,17 @@ reset_pawn():- 	retractall(s1j1(_, _, _, _)),
 				retractall(s5j2(_, _, _, _)),
 				retractall(kj2(_, _, _, _)).
 
-writeWithPlayerColor(X, Player) :- 	Player = 1,
-									ansi_format([bold,fg(red)], '~w', [X]),!.
-writeWithPlayerColor(X, Player) :- 	Player = 2,
-									ansi_format([bold,fg(green)], '~w', [X]),!.
-writeWithPlayerColor(X, Player) :- 	ansi_format([bold,fg(white)], '~w', [X]),!.
-
-display([]).
-display([[T|Q1]|Q2]):- 	display([T|Q1]),
+dynamic_display([]).
+dynamic_display([[T|Q1]|Q2]):- 	dynamic_display([T|Q1]),
 						asserta(j(0)),
 						nl,
 						i(I),
 						NI is I+1,
 						asserta(i(NI)),
-						display(Q2),
+						dynamic_display(Q2),
 						!.
 						
-display([T|Q]):- 		i(I),
+dynamic_display([T|Q]):- 		i(I),
 						j(J),
 						pawn(I, J, P, Player),
 						write(T),
@@ -69,7 +63,7 @@ display([T|Q]):- 		i(I),
 						write(' '),
 						NJ is J+1,
 						asserta(j(NJ)),
-						display(Q),
+						dynamic_display(Q),
 						!.
 
 pawn(X, Y, P, J) :-	s1j1(P, J, X, Y), !.

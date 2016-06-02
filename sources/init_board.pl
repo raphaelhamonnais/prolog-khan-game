@@ -10,11 +10,6 @@
 %%    [3,1,3,1,3,1]
 %%    [2,2,1,3,2,2]
 %%		    a
-writeWithColor(X, Z) :- 	Z =:= 1,
-							ansi_format([bold,fg(red)], X, Z),!.
-writeWithColor(X, Z) :- 	Z =:= 2,
-							ansi_format([bold,fg(blue)], X, Z),!.
-writeWithColor(X, Z) :- 	ansi_format([bold,fg(black)], X, Z),!.
 
 
 
@@ -31,8 +26,7 @@ board_for_choose_side( [
 
 displayList([]).
 displayList([T|Q]) :- write(' '),
-					writeWithColor(' ~w', [T]),
-					 %write(T),
+					 write(T),
 					 displayList(Q),!.
 
 
