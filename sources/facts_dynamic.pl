@@ -45,39 +45,30 @@
 % ========================================================================================
 
 
+
 /*
+ * construct_unused_pawns_list(Player, UnusedPawnList, FullPawnList)
+ * Prédicat permettant d'unifier UnusedPawnList avec l'ensemble des pions du Player qui ne sont pas sur le plateau
+ */
 construct_unused_pawns_list(Player, UnusedPawnList, [PawnList_Head|PawnList_Left]) :-
 		pawn(_, _, PawnList_Head, Player),
 		construct_unused_pawns_list(Player, UnusedPawnList, PawnList_Left),
-		nl,write(1), write(UnusedPawnList),
+		!.
+construct_unused_pawns_list(Player, [PawnList_Head|Q], [PawnList_Head|PawnList_Left]) :-
+		\+pawn(_, _, PawnList_Head, Player),
+		construct_unused_pawns_list(Player, Q, PawnList_Left),
 		!.
 
-construct_unused_pawns_list(Player, UnusedPawnList, [PawnList_Head|PawnList_Left]) :-
-		\+pawn(_, _, PawnList_Head, Player),
-		append([PawnList_Head], UnusedPawnList, UnusedPawnList_Temp), % sinon ajouter le pion dans la liste des pièces non utilisées
-		nl,write(2), write(UnusedPawnList_Temp),
-		construct_unused_pawns_list(Player, UnusedPawnList_Temp, PawnList_Left),
-		copy(UnusedPawnList, UnusedPawnList_Temp), !.
+construct_unused_pawns_list(Player, [], FullPawnList).
 
-construct_unused_pawns_list(Player, UnusedPawnList, []).
-
-%% construct_unused_pawns_list(Player, UnusedPawnList, [PawnList_Head|PawnList_Left]) :-
-%% 		write(PawnList_Head),
-%% 		pawn(_, _, PawnList_Head, Player)
-%% 				%-> append(Head, UnusedPawnList, UnusedPawnList), write('OK in if') % sinon ajouter le pion dans la liste des pièces non utilisées
-%% 				-> write('true - '), write(PawnList_Head), write(Player) %si le pion est sur le plateau, ne rien faire, on n'ajoute pas la pièce dans la liste des pièces non utilisées
-%% 				; append(PawnList_Head, UnusedPawnList, UnusedPawnList_Temp) % sinon ajouter le pion dans la liste des pièces non utilisées
-%% 		,
-%% 		construct_unused_pawns_list(Player, UnusedPawnList_Temp, PawnList_Left),!.
-
-%construct_unused_pawns_list(Player, UnusedPawnList, []) :- !.
-
+/*
+ * get_unused_player_pawns(Player, UnusedPawnList)
+ * Prédicat permettant d'unifier UnusedPawnList avec l'ensemble des pions du Player qui ne sont pas sur le plateau
+ * 		-> construit FullPawnList et appelle construct_unused_pawns_list
+ */
 get_unused_player_pawns(Player, UnusedPawnList) :-
-		pawnList(FullPawnList), write('OK1 - '), write(FullPawnList),
+		pawnList(FullPawnList),
 		construct_unused_pawns_list(Player, UnusedPawnList, FullPawnList).
-%get_unused_player_pawns(Player, []).
-
-*/
 
 
 % ========================================================================================
