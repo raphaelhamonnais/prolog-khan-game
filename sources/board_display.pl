@@ -76,7 +76,7 @@ dynamic_display_table([T|Q]) :-
 		dynamic_display_list(T),
 		nl,
 		% incrémenter i (ligne suivante) et remettre j à 0
-		incrementI(1), setJ(0),
+		incrementI(1), setJ(1),
 		dynamic_display_table(Q).
 
 /* 
@@ -85,8 +85,7 @@ dynamic_display_table([T|Q]) :-
  */
 dynamic_display_board(Board) :-
 		reset_index(), % reset les asserts faits sur i et j, puis donne à i et j la valeur 0
-		write('            0    1    2    3    4    5'), nl,
-		write('            |    |    |    |    |    |'), nl,
+		write('            1    2    3    4    5    6'), nl,
 		write('            v    v    v    v    v    v'), nl, nl,
 		dynamic_display_table(Board).
 

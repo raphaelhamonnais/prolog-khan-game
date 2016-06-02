@@ -55,6 +55,8 @@ setJ(J) :- retractall(j(_)), asserta(j(J)).
 incrementI(Nb) :- i(I), NI is I+Nb, setI(NI).
 incrementJ(Nb) :- j(J), NJ is J+Nb, setJ(NJ).
 
+
+
 % ============================================================
 % ==== AVOIR L'ENSEMBLE DES PIONS NON UTILISES D'UN JOUEUR ===
 % ============================================================
@@ -86,13 +88,11 @@ get_unused_player_pawns(Player, UnusedPawnList) :-
 
 
 
-
-
 % ========================================================================================
 % ==============        PREDICATS DE RESET DES FAITS DYNAMIQUES       ====================
 % ========================================================================================
 
-reset_index():- retractall(i(_)), retractall(j(_)), asserta(i(0)), asserta(j(0)).
+reset_index():- retractall(i(_)), retractall(j(_)), asserta(i(1)), asserta(j(1)).
 reset_pawn():- 	retractall(pawn(_, _, _, _)).
 
 reset_all_dynamic_facts() :- reset_pawn(), reset_index().
