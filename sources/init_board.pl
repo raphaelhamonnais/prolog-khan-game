@@ -127,9 +127,5 @@ initBoard() :- 	display_board_for_choose_side(),
 				displayBoardWithIndex(BOARD),
 				!.
 
-displayActiveBoard() :- activeBoard(BOARD),
-						displayBoardWithIndex(BOARD),
-						!.
-
 
 
