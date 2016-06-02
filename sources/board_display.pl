@@ -55,25 +55,28 @@ display_board_for_choose_side :- board_for_choose_side(X), displayBoardClassic(X
  *   un underscore.
  */
 dynamic_display_list([]).
+
 dynamic_display_list([T|Q]) :- 
-		i(I), j(J), % récupérer les valeurs courantes pour i et j
+		getI(I), getJ(J), % récupérer les valeurs courantes pour i et j
 		write(T), write('-'),
 		(pawn(I, J, Pawn, Player) % tester si la cellule i,j possède un pion
 			-> writeWithPlayerColor(Pawn, Player), write(' ') % si c'est le cas, afficher avec les couleurs
 			; write('_'), write('  ') ), % sinon afficher "_"
-		NJ is J+1, asserta(j(NJ)), % incrémenter j (colonne suivante) et l'enregistrer dans les faits dynamiques
+		incrementJ(1), % incrémenter j (colonne suivante) et l'enregistrer dans les faits dynamiques
 		dynamic_display_list(Q), !. % afficher le reste de la ligne
+
 
 /* 
  * Prédicat qui va appeler le predicat dynamic_display_list pour chaque ligne du plateau de jeu
  */
 dynamic_display_table([]).
 dynamic_display_table([T|Q]) :- 
-		i(I), % récupérer la valeur courante pour i
+		getI(I), % récupérer la valeur courante pour i
 		write(I), write('  -- >    '), % afficher l'indice de ligne
 		dynamic_display_list(T),
 		nl,
-		NI is I+1, asserta(i(NI)), % incrémenter i (ligne suivante) et l'enregistrer dans les faits dynamiques
+		% incrémenter i (ligne suivante) et remettre j à 0
+		incrementI(1), setJ(0),
 		dynamic_display_table(Q).
 
 /* 
@@ -194,5 +197,44 @@ pawn(X, Y, Pawn, Player) :-	kj2(Pawn, Player, X, Y), !.
 pawn(_, _, '_', 0).*/
 
 
+
+
+
+
+
+
+
+
+
+/*
+dynamic_display_list([T|Q]) :- 
+		i(I), j(J), % récupérer les valeurs courantes pour i et j
+		write(T), write('-'),
+		(pawn(I, J, Pawn, Player) % tester si la cellule i,j possède un pion
+			-> writeWithPlayerColor(Pawn, Player), write(' ') % si c'est le cas, afficher avec les couleurs
+			; write('_'), write('  ') ), % sinon afficher "_"
+		NJ is J+1, retractall(j(_)), asserta(j(NJ)), % incrémenter j (colonne suivante) et l'enregistrer dans les faits dynamiques
+		dynamic_display_list(Q), !. % afficher le reste de la ligne
+
+*/
+/*
+dynamic_display_list([T|Q]) :- 
+		i(I), j(J), % récupérer les valeurs courantes pour i et j
+		write('('), write(I), write(J), write(')'),
+		pawn(I, J, Pawn, Player), % tester si la cellule i,j possède un pion
+		write(T), write('-'),
+		writeWithPlayerColor(Pawn, Player), write(' '), % si c'est le cas, afficher avec les couleurs
+		NJ is J+1, retractall(j(_)), asserta(j(NJ)), % incrémenter j (colonne suivante) et l'enregistrer dans les faits dynamiques
+		dynamic_display_list(Q). % afficher le reste de la ligne
+
+
+dynamic_display_list([T|Q]) :- 
+		i(I), j(J), % récupérer les valeurs courantes pour i et j
+		\+pawn(I, J, Pawn, Player), % tester si la cellule i,j est vide
+		write(T), write('-'),
+		write('_'), write(' '), % si c'est le cas, afficher "_"
+		NJ is J+1, retractall(j(_)), asserta(j(NJ)), % incrémenter j (colonne suivante) et l'enregistrer dans les faits dynamiques
+		dynamic_display_list(Q). % afficher le reste de la ligne
+*/
 
 

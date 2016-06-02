@@ -46,6 +46,16 @@
 
 
 % ============================================================
+% ====     UTILISER LES INDICES DE PARCOURS DU PLATEAU     ===
+% ============================================================
+getI(I) :- i(I).
+getJ(J) :- j(J).
+setI(I) :- retractall(i(_)), asserta(i(I)).
+setJ(J) :- retractall(j(_)), asserta(j(J)).
+incrementI(Nb) :- i(I), NI is I+Nb, setI(NI).
+incrementJ(Nb) :- j(J), NJ is J+Nb, setJ(NJ).
+
+% ============================================================
 % ==== AVOIR L'ENSEMBLE DES PIONS NON UTILISES D'UN JOUEUR ===
 % ============================================================
 /*
