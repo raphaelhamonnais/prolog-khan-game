@@ -15,21 +15,34 @@
 :-dynamic(s5j2/4).
 :-dynamic(kj2/4).
 
-init() :- 	asserta(s1j1('S', 1, 0,0)),
-			asserta(s2j1('S', 1, 1,0)),
-			asserta(s3j1('S', 1, 2,0)),
-			asserta(s4j1('S', 1, 3,0)),
-			asserta(s5j1('S', 1, 4,0)),
-			asserta(kj1('K', 1, 5,0)),
-			asserta(s1j2('S', 2, 0,5)),
-			asserta(s2j2('S', 2, 1,5)),
-			asserta(s3j2('S', 2, 2,5)),
-			asserta(s4j2('S', 2, 3,5)),
-			asserta(s5j2('S', 2, 4,5)),
+init() :- 	reset_pawn(),
+			asserta(s1j1('S', 1, 0,0)),
+			asserta(s2j1('S', 1, 0,1)),
+			asserta(s3j1('S', 1, 0,2)),
+			asserta(s4j1('S', 1, 0,3)),
+			asserta(s5j1('S', 1, 0,4)),
+			asserta(kj1('K', 1, 0,5)),
+			asserta(s1j2('S', 2, 5,0)),
+			asserta(s2j2('S', 2, 5,1)),
+			asserta(s3j2('S', 2, 5,2)),
+			asserta(s4j2('S', 2, 5,3)),
+			asserta(s5j2('S', 2, 5,4)),
 			asserta(kj2('K', 2, 5,5)),
-			reset().
+			reset_index().
 
-reset():- retractall(i(_)), retractall(j(_)), asserta(i(0)), asserta(j(0)).
+reset_index():- retractall(i(_)), retractall(j(_)), asserta(i(0)), asserta(j(0)).
+reset_pawn():- 	retractall(s1j1(_, _, _, _)),
+				retractall(s2j1(_, _, _, _)),
+				retractall(s3j1(_, _, _, _)),
+				retractall(s4j1(_, _, _, _)),
+				retractall(s5j1(_, _, _, _)),
+				retractall(kj1(_, _, _, _)),
+				retractall(s1j2(_, _, _, _)),
+				retractall(s2j2(_, _, _, _)),
+				retractall(s3j2(_, _, _, _)),
+				retractall(s4j2(_, _, _, _)),
+				retractall(s5j2(_, _, _, _)),
+				retractall(kj2(_, _, _, _)).
 
 writeWithPlayerColor(X, Player) :- 	Player = 1,
 									ansi_format([bold,fg(red)], '~w', [X]),!.
@@ -39,11 +52,11 @@ writeWithPlayerColor(X, Player) :- 	ansi_format([bold,fg(white)], '~w', [X]),!.
 
 display([]).
 display([[T|Q1]|Q2]):- 	display([T|Q1]),
-						asserta(i(0)),
+						asserta(j(0)),
 						nl,
-						j(J),
-						NJ is J+1,
-						asserta(j(NJ)),
+						i(I),
+						NI is I+1,
+						asserta(i(NI)),
 						display(Q2),
 						!.
 						
@@ -54,8 +67,8 @@ display([T|Q]):- 		i(I),
 						write('-'),
 						writeWithPlayerColor(P, Player),
 						write(' '),
-						NI is I+1,
-						asserta(i(NI)),
+						NJ is J+1,
+						asserta(j(NJ)),
 						display(Q),
 						!.
 
