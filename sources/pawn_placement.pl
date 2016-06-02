@@ -31,7 +31,7 @@ ask_initial_pawns_placement() :-
 
 ask_one_player_initial_pawns_placement(Player, [PawnsList_Head|Q]) :-
 		write('Placer le pion '), write(PawnsList_Head), nl,
-		write('Ligne : '), read(X), nl, % demander et lire l'indice de la ligne
+		write('Ligne : '), read(X), % demander et lire l'indice de la ligne
 		write('Colonne : '), read(Y), nl, % demander et lire l'indice de la colonne
 		place_pawn(X, Y, PawnsList_Head, Player),
 		dynamic_display_active_board(),
