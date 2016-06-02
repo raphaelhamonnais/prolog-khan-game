@@ -84,7 +84,8 @@ dynamic_display_table([T|Q]) :-
  *  il faut en effet que i et j (surtout i) soit initialisés à 0
  */
 dynamic_display_board(Board) :-
-		reset_index(), % reset les asserts faits sur i et j, puis donne à i et j la valeur 0
+		reset_index(), % reset les asserts faits sur i et j, puis donne à i et j la valeur 1
+		nl,nl,
 		write('            1    2    3    4    5    6'), nl,
 		write('            v    v    v    v    v    v'), nl, nl,
 		dynamic_display_table(Board).
