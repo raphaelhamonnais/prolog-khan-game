@@ -45,7 +45,9 @@
 % ========================================================================================
 
 
-
+% ============================================================
+% ==== AVOIR L'ENSEMBLE DES PIONS NON UTILISES D'UN JOUEUR ===
+% ============================================================
 /*
  * construct_unused_pawns_list(Player, UnusedPawnList, FullPawnList)
  * Prédicat permettant d'unifier UnusedPawnList avec l'ensemble des pions du Player qui ne sont pas sur le plateau
@@ -69,6 +71,11 @@ construct_unused_pawns_list(Player, [], FullPawnList).
 get_unused_player_pawns(Player, UnusedPawnList) :-
 		pawnList(FullPawnList),
 		construct_unused_pawns_list(Player, UnusedPawnList, FullPawnList).
+
+
+
+
+
 
 
 % ========================================================================================
