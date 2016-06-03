@@ -100,6 +100,33 @@ place_pawn(X, Y, Pawn, Player) :-
 % ===========           DEPLACEMENT D'UNE PIECE AU COURS DU JEU             ==============
 % ========================================================================================
 
+ask_movement_to_player(Player) :-
+		nl, write (Joueur ), write(Player), write(' --> '),
+		write('Quelle pièce voulez-vous jouer ? (entrez son nom, S1, S2, ..., K)'), nl,
+		read(Piece),
+		pawn(I, J, Piece, Player). % à continuer
+
+
+
+get_cell_value(X, Y, CellValue) :-
+	activeBoard(Board),
+	element_position_n(X, Board, Wanted_Line),
+	element_position_n(Y, Wanted_Line, CellValue).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
