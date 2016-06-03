@@ -84,4 +84,24 @@ place_pawn(X, Y, Pawn, Player) :-
 		retractall(pawn(X, Y, _, _)), % supprimer l'historique de la case
 		asserta(pawn(X,Y,Pawn,Player)). % ajouter la pièce
 
-		
+
+
+
+
+
+
+
+
+
+
+
+
+% ========================================================================================
+% ===========           DEPLACEMENT D'UNE PIECE AU COURS DU JEU             ==============
+% ========================================================================================
+
+
+
+
+
+

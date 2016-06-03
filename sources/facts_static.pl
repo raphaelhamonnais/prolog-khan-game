@@ -3,7 +3,7 @@ player1(1).
 % Joueur2 a pour numéro 2
 player2(2).
 % Liste des pions possibles pour un joueur : 5 sbires (S) et une Kalista (K)
-pawnList(['S1', 'S2', 'S3', 'S4', 'S5', 'K ']).
+pawnList(['S1', 'S2', 'S3', 'S4', 'S5', 'K']).
 
 
 
