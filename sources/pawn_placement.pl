@@ -8,7 +8,7 @@
 
 
 % ========================================================================================
-% ==============               PREDICATS DE CONTROLE BASIQUES              ===============
+% ==============          PREDICATS UTILES AU PLACEMENT DES PIECES              ==========
 % ========================================================================================
 
 /*
@@ -60,10 +60,62 @@ finish_left(X, Y, NY, Player) :- NY is Y-1, cell_in_board(X,NY), no_pawn_player_
 finish_up(X, Y, NX, Player) :- NX is X-1, cell_in_board(NX,Y), no_pawn_player_in_cell(NX,Y, Player).
 finish_down(X, Y, NX, Player) :- NX is X+1, cell_in_board(NX,Y), no_pawn_player_in_cell(NX,Y, Player).
 
+
+/*
+ * Prédicat qui renvoie la valeur d'une case d'indice X et Y
+ */
+get_cell_value(X, Y, CellValue) :-
+		activeBoard(Board),
+		element_position_n(X, Board, Wanted_Line),
+		element_position_n(Y, Wanted_Line, CellValue).
+
+
+
+
+
+/*
+ * Permet de placer un pion : on supprime pour une case donnée les faits précédement enregistrés
+ * et on rajouter dynamiquement le fait que le pion Pawn du joueur Player est sur la case X Y
+ */
+place_pawn(X, Y, Pawn, Player) :-
+		retractall(pawn(X, Y, _, Player)), % supprimer l'historique de la case
+		asserta(pawn(X,Y,Pawn,Player)). % ajouter la pièce
+move_pawn(X, Y, NX, NY, Pawn, Player) :-
+		retractall(pawn(X, Y, _, Player)), % supprimer l'historique de la case
+		retractall(pawn(NX, NY, _, Player)), % supprimer l'historique de la case
+		asserta(pawn(NX,NY,Pawn,Player)). % ajouter la pièce
+
+
+
+
+
+
+
+
+
+
 % ========================================================================================
 % ===============               PLACEMENT DES PIONS AU DEBUT              ================
 % ========================================================================================
 
+
+
+
+% ======= PREDICATS UTILES POUR LE PLACEMENT INITIAL DES PIONS  =======
+
+/*
+ * Prédicat de controle pour le placement des pions au début.
+ * Le joueur 1 doit les placer en bas, le joueur 2 en haut, et la case doit etre vide.
+ */
+initial_pawn_placement_correct(Player, X, Y) :-
+		no_pawn_player_in_cell(X,Y,Player),
+		pawn_in_initial_lines(X,Y,Player).
+
+
+
+
+
+% ======= PLACEMENT INITIAL DES PIONS  =======
 
 /*
  * Demander aux deux joueurs de placer tous leurs pions
@@ -103,27 +155,6 @@ ask_one_player_initial_pawns_placement(Player, []).
 
 
 
-/*
- * Prédicat de controle pour le placement des pions au début.
- * Le joueur 1 doit les placer en bas, le joueur 2 en haut, et la case doit etre vide.
- */
-initial_pawn_placement_correct(Player, X, Y) :-
-		no_pawn_player_in_cell(X,Y,Player),
-		pawn_in_initial_lines(X,Y,Player).
-
-
-
-
-
-
-/*
- * Permet de placer un pion : on supprime pour une case donnée les faits précédement enregistrés
- * et on rajouter dynamiquement le fait que le pion Pawn du joueur Player est sur la case X Y
- */
-place_pawn(X, Y, Pawn, Player) :-
-		retractall(pawn(X, Y, _, _)), % supprimer l'historique de la case
-		asserta(pawn(X,Y,Pawn,Player)). % ajouter la pièce
-
 
 
 
@@ -139,88 +170,84 @@ place_pawn(X, Y, Pawn, Player) :-
 % ========================================================================================
 
 
-/* Dans le cas où la pièce n'est pas sur le plateau */
+
 ask_movement_to_player(Player) :-
 		nl, write('Joueur '), write(Player), write(' --> '),
-		write('Quelle pièce voulez-vous jouer ? (entrez son nom, S1, S2, ..., K)'), nl,
+		write('Quelle pièce voulez-vous jouer ? (entrez son nom : S1, S2, ..., K ENTRE SIMPLES GUILLEMETS)'), nl,
 		read(Pawn),
-		\+pawn(I, J, Pawn, Player), % dans le cas où la pièce n'est pas sur le plateau
-		write('Vous ne pouvez pas jouer la pièce '), write(Pawn), write('. Recommencez SVP.'),
+		%write(Pawn),
+
+		(pawn(I, J, Pawn, Player) % dans le cas où la pièce est sur le plateau, on récupère les indices
+			-> true
+			; check_pawn_available(Player)
+		),
+		%write(I), write(J),
+		get_cell_value(I, J, CellValue), % récupérer la valeur de la case
+		setof(ML, possible_moves(I,J,Player,CellValue,[(I,J)],ML), ML),
+		flatten(ML, MoveList),
+		write('Voici les coups possible pour la pièce '), write(Pawn), write(' : '), write(MoveList), nl,
+		write('Entrez les nouvelles coordonnées :'), nl,
+		write('Ligne : '), read(X), % demander et lire l'indice de la ligne
+		write('Colonne : '), read(Y), nl, % demander et lire l'indice de la colonne
+		%check_good_coordonates(X,Y,MoveList,NX,NY), % test de boucle de vérification mais pas fonctionnel
+		move_pawn(I, J, X, Y, Pawn, Player),
+		dynamic_display_active_board(),!.
+
+/*
+check_good_coordonates(X1,Y1,MoveList,X2,Y2) :- 
+	\+member_one_occurence((X1,Y1),MoveList),
+	write('Mauvaises coordonnées, recommencez SVP.'),nl,
+	write('Ligne : '), read(X2), % demander et lire l'indice de la ligne
+	write('Colonne : '), read(Y2),nl,
+	check_good_coordonates(X2,Y2,MoveList,_,_).
+*/
+
+/* Dans le cas où la pièce n'est pas sur le plateau */
+check_pawn_available(Player) :-
+		%nl, write('Joueur '), write(Player), write(' --> '),
+		%write('Quelle pièce voulez-vous jouer ? (entrez son nom, S1, S2, ..., K)'), nl,
+		%read(Pawn),
+		%\+pawn(I, J, Pawn, Player), % dans le cas où la pièce n'est pas sur le plateau
+		write('Vous ne pouvez pas jouer cette pièce, recommencez SVP.'),
 		ask_movement_to_player(Player).
 
-ask_movement_to_player(Player) :-
-		nl, write('Joueur '), write(Player), write(' --> '),
-		write('Quelle pièce voulez-vous jouer ? (entrez son nom, S1, S2, ..., K)'), nl,
-		read(Pawn),
-		pawn(I, J, Pawn, Player), % dans le cas où la pièce est sur le plateau, on récupère les indices
-		get_cell_value(I, J, CellValue) % récupérer la valeur de la case
-
-		.
-
-
-
-get_cell_value(X, Y, CellValue) :-
-		activeBoard(Board),
-		element_position_n(X, Board, Wanted_Line),
-		element_position_n(Y, Wanted_Line, CellValue).
 
 
 
 
 
-test_possible_moves() :-
-		setof(L, possible_moves(3,3,1,2,[(3,3)],L), L),
-		flatten(L,NL),
-		clear_singletons_in_list(NL,NL1),
-		write(NL1).
-
-clear_singletons_in_list([],[]) :- !.
-clear_singletons_in_list([(X,Y)|R], [(X,Y)|Q]) :- clear_singletons_in_list(R,Q),!.
-clear_singletons_in_list([T|R], Q) :- clear_singletons_in_list(R,Q),!.
 
 
 
-possible_moves(X, Y, Player, 1, AlreadySeens, [(X,NY)]) :-
-		finish_right(X,Y, NY, Player), % si on peut finir vers la droite
-		\+member((X,NY),AlreadySeens),
-		write('finish_right.'), nl.
-possible_moves(X, Y, Player, 1, AlreadySeens, [(X,NY)]) :-
-		finish_left(X,Y, NY, Player), % si on peut finir vers la droite
-		\+member((X,NY),AlreadySeens),
-		write('finish_left.'), nl.
-possible_moves(X, Y, Player, 1, AlreadySeens, [(X,NY)]) :-
-		finish_up(X,Y, NX, Player), % si on peut finir vers la droite
-		\+member((NX,Y),AlreadySeens),
-		write('finish_up.'), nl.
-possible_moves(X, Y, Player, 1, AlreadySeens, [(X,NY)]) :-
-		finish_down(X,Y, NX, Player), % si on peut finir vers la droite
-		\+member((NX,Y),AlreadySeens),
-		write('finish_down.'), nl.
 
 
-% possible de faire avec append aussi :
-/*
+
+
+
+
+
+
 possible_moves(X, Y, Player, 1, AlreadySeens, MoveList) :-
 		finish_right(X,Y, NY, Player), % si on peut finir vers la droite
 		\+member((X,NY),AlreadySeens),
-		append([(X,NY)], [], MoveList),
-		write('finish_right.'), nl.
+		append([(X,NY)], [], MoveList).
+		%write('finish_right.'), write(MoveList), nl.
 possible_moves(X, Y, Player, 1, AlreadySeens, MoveList) :-
 		finish_left(X,Y, NY, Player), % si on peut finir vers la droite
 		\+member((X,NY),AlreadySeens),
-		append([(X,NY)], [], MoveList),
-		write('finish_left.'), nl.
+		append([(X,NY)], [], MoveList).
+		%write('finish_left.'), write(MoveList), nl.
 possible_moves(X, Y, Player, 1, AlreadySeens, MoveList) :-
 		finish_up(X,Y, NX, Player), % si on peut finir vers la droite
 		\+member((NX,Y),AlreadySeens),
-		append([(NX,Y)], [], MoveList),
-		write('finish_up.'), nl.
+		append([(NX,Y)], [], MoveList).
+		%write('finish_up.'), write(MoveList), nl.
 possible_moves(X, Y, Player, 1, AlreadySeens, MoveList) :-
 		finish_down(X,Y, NX, Player), % si on peut finir vers la droite
 		\+member((NX,Y),AlreadySeens),
-		append([(NX,Y)], [], MoveList),
-		write('finish_down.'), nl.
-*/
+		append([(NX,Y)], [], MoveList).
+		%write('finish_down.'), write(MoveList), nl.
+
 
 
 
@@ -230,7 +257,7 @@ possible_moves(X, Y, Player, Range, AlreadySeens, MoveList) :-
 		move_right(X,Y, NY), % si on peut finir vers la droite
 		\+member((X,NY),AlreadySeens),
 		append([(X,NY)], AlreadySeens, AlreadySeens_Tmp),
-		write('move_right -> '),
+		%write('move_right -> '),
 		possible_moves(X, NY, Player, NewRange, AlreadySeens_Tmp, MoveList).
 
 possible_moves(X, Y, Player, Range, AlreadySeens, MoveList) :-
@@ -239,7 +266,7 @@ possible_moves(X, Y, Player, Range, AlreadySeens, MoveList) :-
 		move_left(X,Y, NY), % si on peut finir vers la droite
 		\+member((X,NY),AlreadySeens),
 		append([(X,NY)], AlreadySeens, AlreadySeens_Tmp),
-		write('move_left -> '),
+		%write('move_left -> '),
 		possible_moves(X, NY, Player, NewRange, AlreadySeens_Tmp, MoveList).
 
 possible_moves(X, Y, Player, Range, AlreadySeens, MoveList) :-
@@ -248,7 +275,7 @@ possible_moves(X, Y, Player, Range, AlreadySeens, MoveList) :-
 		move_up(X,Y, NX), % si on peut finir vers la droite
 		\+member((NX,Y),AlreadySeens),
 		append([(NX,Y)], AlreadySeens, AlreadySeens_Tmp),
-		write('move_up -> '),
+		%write('move_up -> '),
 		possible_moves(NX, Y, Player, NewRange, AlreadySeens_Tmp, MoveList).
 
 possible_moves(X, Y, Player, Range, AlreadySeens, MoveList) :-
@@ -257,103 +284,5 @@ possible_moves(X, Y, Player, Range, AlreadySeens, MoveList) :-
 		move_down(X,Y, NX), % si on peut finir vers la droite
 		\+member((NX,Y),AlreadySeens),
 		append([(NX,Y)], AlreadySeens, AlreadySeens_Tmp),
-		write('move_down -> '),
+		%write('move_down -> '),
 		possible_moves(NX, Y, Player, NewRange, AlreadySeens_Tmp, MoveList).
-
-possible_moves(X, Y, Player, Range, AlreadySeens, MoveList).
-
-
-
-
-
-
-
-% ========================================================================================
-% ===============               NE MARCHE PAS !!!!!!!              ================
-% La fonction en soi marche, les write lorsqu'on est à un Range de 0 écrive bien la liste
-% des coups effectivements possibles (avec des doublons car plusieurs chemins pour arriver)
-% à une case mais pas moyen de récupérer la liste entière
-% En plus le test de case vide ne doit pas être fait au début du déplacement car forcément
-% on part de cette case, donc elle est pas vide
-% ========================================================================================
-
-/*
-
-
-callGenerate(X, Y, CellValue, Player, List) :-
-	createPossibleMovesList(X,Y,CellValue,Player,[]).
-	%setof(ListTmp, createPossibleMovesList(X,Y,CellValue,Player,[(X,Y)])).
-
-
-createPossibleMovesList(X,Y,0, Player, Not_To_Consider) :-
-		cell_in_board(X,Y), % le pion doit rester dans le plateau
-		\+member((X,Y),Not_To_Consider), % si le pion n'est pas membre des cases déjà visitées
-		no_pawn_player_in_cell(X,Y,Player), % la cellule doit soit être vide, soit comporter un pion adverse, mais pas un pion du joueur
-		write('--->  '), write('('), write(X), write(','), write(Y), write(')'),nl.
-
-createPossibleMovesList(X,Y,0, Player, Not_To_Consider) :-
-		X is X + 1,
-		Y is Y + 0,
-		cell_in_board(X,Y), % le pion doit rester dans le plateau
-		\+member((X,Y),Not_To_Consider), % si le pion n'est pas membre des cases déjà visitées
-		no_pawn_player_in_cell(X,Y,Player), % la cellule doit soit être vide, soit comporter un pion adverse, mais pas un pion du joueur
-		write('--->  '), write('('), write(X), write(','), write(Y), write(')'),nl.
-
-createPossibleMovesList(X,Y,0, Player, Not_To_Consider) :-
-		X is X + 0,
-		Y is Y - 1,
-		cell_in_board(X,Y), % le pion doit rester dans le plateau
-		\+member((X,Y),Not_To_Consider), % si le pion n'est pas membre des cases déjà visitées
-		no_pawn_player_in_cell(X,Y,Player), % la cellule doit soit être vide, soit comporter un pion adverse, mais pas un pion du joueur
-		write('--->  '), write('('), write(X), write(','), write(Y), write(')'),nl.
-
-createPossibleMovesList(X,Y,0, Player, Not_To_Consider) :-
-		X is X + 0,
-		Y is Y + 1,
-		cell_in_board(X,Y), % le pion doit rester dans le plateau
-		\+member((X,Y),Not_To_Consider), % si le pion n'est pas membre des cases déjà visitées
-		no_pawn_player_in_cell(X,Y,Player), % la cellule doit soit être vide, soit comporter un pion adverse, mais pas un pion du joueur
-		write('--->  '), write('('), write(X), write(','), write(Y), write(')'),nl.
-
-
-
-createPossibleMovesList(X,Y,Range, Player, Not_To_Consider) :- % on donne juste Q comme liste de coups possibles car on ne veut pas le chemin intermédiaire entre la position de départ et celle d'arrivée
-		Range > 0, % si la valeur de déplacement est supérieure à 1
-		cell_in_board(X,Y), % le pion doit rester dans le plateau
-		\+member((X,Y),Not_To_Consider), % si le pion n'est pas membre des cases déjà visitées
-		cell_empty(X,Y), % la cellule doit être vide car il est interdit de passer par dessus une pièce
-		append([(X,Y)], Not_To_Consider, New_Not_To_Consider),
-		New_X is X - 1, New_Y is Y + 0, New_Range is Range - 1,
-		createPossibleMovesList(New_X,New_Y,New_Range,Player, New_Not_To_Consider).
-
-createPossibleMovesList(X,Y,Range, Player, Not_To_Consider) :- % on donne juste Q comme liste de coups possibles car on ne veut pas le chemin intermédiaire entre la position de départ et celle d'arrivée
-		Range > 0, % si la valeur de déplacement est supérieure à 1
-		cell_in_board(X,Y), % le pion doit rester dans le plateau
-		\+member((X,Y),Not_To_Consider), % si le pion n'est pas membre des cases déjà visitées
-		cell_empty(X,Y), % la cellule doit être vide car il est interdit de passer par dessus une pièce
-		append([(X,Y)], Not_To_Consider, New_Not_To_Consider),
-		New_X is X + 1, New_Y is Y + 0, New_Range is Range - 1,
-		createPossibleMovesList(New_X,New_Y,New_Range,Player, New_Not_To_Consider).
-
-createPossibleMovesList(X,Y,Range, Player, Not_To_Consider) :- % on donne juste Q comme liste de coups possibles car on ne veut pas le chemin intermédiaire entre la position de départ et celle d'arrivée
-		Range > 0, % si la valeur de déplacement est supérieure à 1
-		cell_in_board(X,Y), % le pion doit rester dans le plateau
-		\+member((X,Y),Not_To_Consider), % si le pion n'est pas membre des cases déjà visitées
-		cell_empty(X,Y), % la cellule doit être vide car il est interdit de passer par dessus une pièce
-		append([(X,Y)], Not_To_Consider, New_Not_To_Consider),
-		New_X is X + 0, New_Y is Y - 1, New_Range is Range - 1,
-		createPossibleMovesList(New_X,New_Y,New_Range,Player, New_Not_To_Consider).
-
-createPossibleMovesList(X,Y,Range, Player, Not_To_Consider) :- % on donne juste Q comme liste de coups possibles car on ne veut pas le chemin intermédiaire entre la position de départ et celle d'arrivée
-		Range > 0, % si la valeur de déplacement est supérieure à 1
-		cell_in_board(X,Y), % le pion doit rester dans le plateau
-		\+member((X,Y),Not_To_Consider), % si le pion n'est pas membre des cases déjà visitées
-		cell_empty(X,Y), % la cellule doit être vide car il est interdit de passer par dessus une pièce
-		append([(X,Y)], Not_To_Consider, New_Not_To_Consider),
-		New_X is X + 0, New_Y is Y + 1, New_Range is Range - 1,
-		createPossibleMovesList(New_X,New_Y,New_Range,Player, New_Not_To_Consider).
-
-createPossibleMovesList(_,_,_,_,_).
-
-
-*/

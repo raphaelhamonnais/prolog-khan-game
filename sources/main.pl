@@ -5,7 +5,8 @@ include_sources() :-
 	[facts_static],
 	[board_display],
 	[init_board],
-	[pawn_placement].
+	[pawn_placement],
+	[tests_file].
 
 main() :- 
 	include_sources(), % inclure tous les fichiers
