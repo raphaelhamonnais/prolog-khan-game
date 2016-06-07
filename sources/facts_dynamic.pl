@@ -29,6 +29,7 @@
  		  les valeurs du pion et du joueur
  */
 :-dynamic(pawn/4).
+:-dynamic(khan/2).
 	
 
 /*
@@ -85,7 +86,15 @@ get_unused_player_pawns(Player, UnusedPawnList) :-
 		construct_unused_pawns_list(Player, UnusedPawnList, FullPawnList).
 
 
+place_khan(X,Y) :-
+		cell_in_board(X,Y),
+		retractall(khan(_, _)),
+		asserta(khan(X, Y)).
 
+move_pawn(X, Y, NX, NY, Pawn, Player) :-
+		retractall(pawn(X, Y, _, Player)), % supprimer l'historique de la case
+		retractall(pawn(NX, NY, _, Player)), % supprimer l'historique de la case
+		asserta(pawn(NX,NY,Pawn,Player)). % ajouter la pièce		
 
 
 % ========================================================================================
@@ -94,5 +103,4 @@ get_unused_player_pawns(Player, UnusedPawnList) :-
 
 reset_index():- retractall(i(_)), retractall(j(_)), asserta(i(1)), asserta(j(1)).
 reset_pawn():- 	retractall(pawn(_, _, _, _)).
-
 reset_all_dynamic_facts() :- reset_pawn(), reset_index().
