@@ -129,7 +129,16 @@ dynamic_display_board(Board) :-
  */
 dynamic_display_active_board() :-
 		activeBoard(Board),
-		dynamic_display_board(Board), !.
+		dynamic_display_board(Board),
+		write('Position du Khan : '),
+		(khan(X,Y)
+			-> 	get_khan_cell_value(Value),
+				write(X), write(','), write(Y),
+				write('  --->  vous ne pouvez jouer que des pièces étant sur des cases de valeur '), write(Value), nl,nl,nl
+
+			; 	write('Pas encore de Khan.'), nl
+		),
+		!.
 
 
 

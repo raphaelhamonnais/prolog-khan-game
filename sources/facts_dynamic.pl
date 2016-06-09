@@ -30,7 +30,6 @@
  */
 :-dynamic(pawn/4).
 :-dynamic(khan/2).
-	
 
 /*
  * Fait dynamique permettant de sauvegarder le plateau de jeu actif
@@ -118,7 +117,8 @@ move_pawn(X, Y, NX, NY, Pawn, Player) :-
 % ==============        PREDICATS DE RESET DES FAITS DYNAMIQUES       ====================
 % ========================================================================================
 
+reset_activeBoard :- retractall(activeBoard(_)).
 reset_index():- retractall(i(_)), retractall(j(_)), asserta(i(1)), asserta(j(1)).
 reset_pawn():- 	retractall(pawn(_, _, _, _)).
 reset_khan() :- retractall(khan(_, _)).
-reset_all_dynamic_facts() :- reset_pawn(), reset_index(), reset_khan().
+reset_all_dynamic_facts() :- reset_activeBoard(), reset_pawn(), reset_index(), reset_khan().

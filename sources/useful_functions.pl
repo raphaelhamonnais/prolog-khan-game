@@ -1,7 +1,8 @@
 writeWithPlayerColor(X, Player) :- 	Player =:= 1,
-									ansi_format([bold,fg(red)], '~w', [X]),!.
+									ansi_format([fg(green)], '~w', [X]),!.
 writeWithPlayerColor(X, Player) :- 	Player =:= 2,
-									ansi_format([bold,fg(magenta)], '~w', [X]),!.
+									ansi_format([fg(blue)], '~w', [X]),!.
+writeInRed(X) :- ansi_format([fg(red)], '~w', [X]),!.
 %writeWithPlayerColor(X, Player) :- 	ansi_format([bold,fg(white)], '~w', [X]),!.
 
 

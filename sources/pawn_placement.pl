@@ -124,44 +124,39 @@ cell_has_same_value_than_khan(X,Y) :-
 
 
 
-check_in_line([T|Q], List) :- 
+get_available_cells_khan_value_in_line([T|Q], [(I,J)|R]) :- 
 		getI(I), getJ(J), % récupérer les valeurs courantes pour i et j
-		(cell_has_same_value_than_khan(I,J) % tester si la cellule i,j possède un pion
-			-> append([(I,J)], [], List)
-			; append([], [], List)
-		),
+		cell_empty(I,J),
+		cell_has_same_value_than_khan(I,J), % tester si la cellule i,j possède un pion
 		incrementJ(1), % incrémenter j (colonne suivante) et l'enregistrer dans les faits dynamiques
-		check_in_line(Q,NewList), !. % afficher le reste de la ligne
+		get_available_cells_khan_value_in_line(Q,R),!. % afficher le reste de la ligne
+get_available_cells_khan_value_in_line([_|Q], R) :- 
+		incrementJ(1), % incrémenter j (colonne suivante) et l'enregistrer dans les faits dynamiques
+		get_available_cells_khan_value_in_line(Q,R),!. % afficher le reste de la ligne
 
-check_in_line([],_) :- !.
-
-%check_in_line([T|Q],R) :- 
-%		getI(I), getJ(J), % récupérer les valeurs courantes pour i et j
-%		\+cell_has_same_value_than_khan(I,J),
-%		incrementJ(1), % incrémenter j (colonne suivante) et l'enregistrer dans les faits dynamiques
-%		check_in_line(Q,R), !. % afficher le reste de la ligne
-
+get_available_cells_khan_value_in_line(_,[]) :- !.
+get_available_cells_khan_value_in_line([],_) :- !.
+get_available_cells_khan_value_in_line([],[]) :- !.
 
 /* 
- * Prédicat qui va appeler le predicat check_in_line pour chaque ligne du plateau de jeu
+ * Prédicat qui va appeler le predicat get_available_cells_khan_value_in_line pour chaque ligne du plateau de jeu
  */
-check_in_board([],[]).
-check_in_board([],_).
-check_in_board([T|Q], List) :- 
-		getI(I), % récupérer la valeur courante pour i
-		check_in_line(T,List),
+get_available_cells_khan_value_in_board([T|Q], [H|Rest]) :- 
+		get_available_cells_khan_value_in_line(T,H),
 		incrementI(1), setJ(1), % incrémenter i (ligne suivante) et remettre j à 0
-		check_in_board(Q,List).
-
+		get_available_cells_khan_value_in_board(Q,Rest),!.
+get_available_cells_khan_value_in_board(_,[]) :- !.
+get_available_cells_khan_value_in_board([],_) :- !.
+get_available_cells_khan_value_in_board([],[]) :- !.
 /* 
- * Prédicat qui sert de lanceur au prédicat check_in_board :
+ * Prédicat qui sert de lanceur au prédicat get_available_cells_khan_value_in_board :
  *  il faut en effet que i et j (surtout i) soit initialisés à 0
  */
 get_all_cells_according_to_khan_cell_value(CellList) :-
-		asserta(khan(4,1)),
 		reset_index(), % reset les asserts faits sur i et j, puis donne à i et j la valeur 1
 		activeBoard(Board),
-		check_in_board(Board,CellList).
+		get_available_cells_khan_value_in_board(Board,CellList_Tmp),
+		flatten(CellList_Tmp, CellList).
 
 
 
@@ -195,8 +190,8 @@ place_pawn(X, Y, Pawn, Player) :-
 		retractall(pawn(X, Y, _, Player)), % supprimer l'historique de la case
 		asserta(pawn(X,Y,Pawn,Player)). % ajouter la pièce
 move_pawn(X, Y, NX, NY, Pawn, Player) :-
-		retractall(pawn(X, Y, _, Player)), % supprimer l'historique de la case
-		retractall(pawn(NX, NY, _, Player)), % supprimer l'historique de la case
+		retractall(pawn(X, Y, _, _)), % supprimer l'historique de la case
+		retractall(pawn(NX, NY, _, _)), % supprimer l'historique de la case
 		asserta(pawn(NX,NY,Pawn,Player)), % ajouter la pièce
 		reset_khan(),
 		asserta(khan(NX,NY)).
@@ -327,7 +322,7 @@ ask_one_player_initial_pawns_placement(Player, [PawnsList_Head|Q]) :-
 				dynamic_display_active_board(),
 				ask_one_player_initial_pawns_placement(Player, Q)
 
-			; 	write('Placement illegal, recommencez.'),
+			; 	writeInRed('Placement illegal, recommencez.'),
 				ask_one_player_initial_pawns_placement(Player, [PawnsList_Head|Q])
 		).
 ask_one_player_initial_pawns_placement(Player, []).
@@ -367,7 +362,9 @@ get_possible_pawn(Player, [T|Q], PossiblePawnList) :-
  * Prédicat qui demande à un joueur de choisir la nouvelle position d'une pièce
  */
 ask_pawn_new_position(I,J,MoveList,Pawn,Player) :-
-		write('Voici les coups possible pour la pièce '), write(Pawn), write(' : '), write(MoveList), nl,
+		write('Voici les coups possible pour la pièce '),
+		writeWithPlayerColor(Pawn,Player), writeWithPlayerColor(' : ',Player),
+		writeWithPlayerColor(MoveList,Player), nl,
 		write('Entrez les nouvelles coordonnées :'), nl,
 		write('Ligne : '), read(X), % demander et lire l'indice de la ligne
 		write('Colonne : '), read(Y), nl, % demander et lire l'indice de la colonne
@@ -376,8 +373,28 @@ ask_pawn_new_position(I,J,MoveList,Pawn,Player) :-
 			-> 	move_pawn(I, J, X, Y, Pawn, Player),
 				dynamic_display_active_board()
 
-			; 	write('Mauvaises coordonnées, recommencez SVP.'),nl,
+			; 	writeInRed('Mauvaises coordonnées, recommencez SVP.'),nl,
 				ask_pawn_new_position(I,J,MoveList,Pawn,Player)
+		).
+
+/*
+ * Prédicat qui demande à un joueur de choisir la nouvelle position d'une pièce dans le cas où
+ * il remet la pièce sur le plateau alors qu'elle était sortie du jeu
+ */
+ask_pawn_new_placement(MoveList,Pawn,Player) :-
+		write('Voici les coups possible pour la pièce '),
+		writeWithPlayerColor(Pawn,Player), writeWithPlayerColor(' : ',Player),
+		writeWithPlayerColor(MoveList,Player), nl,
+		write('Entrez les nouvelles coordonnées :'), nl,
+		write('Ligne : '), read(X), % demander et lire l'indice de la ligne
+		write('Colonne : '), read(Y), nl, % demander et lire l'indice de la colonne
+
+		(check_good_coordonates(X,Y,MoveList) % vérifie que les coordonnées sont bien dans la liste des coups possibles, sinon on lui redemande de bonne coordonnées
+			-> 	place_pawn(X, Y, Pawn, Player),
+				dynamic_display_active_board()
+
+			; 	writeInRed('Mauvaises coordonnées, recommencez SVP.'),nl,
+				ask_pawn_new_placement(I,J,MoveList,Pawn,Player)
 		).
 
 
@@ -395,25 +412,28 @@ ask_movement_to_player(Player) :-
 		length(PossiblePawnList_Tmp,NumberOfPossiblePawns), % récupérer la longueur de la liste PossiblePawnList_Tmp
 		(NumberOfPossiblePawns =:= 0 % dans le cas où celle liste est vide, cela veut dire que le joueur n'a aucune pièce présente sur une case du même type que celle du Khan
 			-> union([], FullPawnList, PossiblePawnList) % alors il peut jouer l'ensemble de ses pièces, qu'elles soient présentes où non sur le plateau
-			; union([], PossiblePawnList_Tmp, PossiblePawnList)
+			; union([], PossiblePawnList_Tmp, PossiblePawnList) % sinon on unifie PossiblePawnList avec PossiblePawnList_Tmp et une liste vide
 		),
-		nl, write('Joueur '), write(Player), write(' --> '),
-		write("Pièces possibles : "), write(PossiblePawnList), write(" (entrez le nom de celle que vous voulez jouer {'S1', ..., 'K'} ENTRE SIMPLES GUILLEMETS)"), nl,
+		nl, writeWithPlayerColor('Joueur ', Player), writeWithPlayerColor(Player, Player), writeWithPlayerColor(' --> ', Player),
+		write("Pièces possibles : "), writeWithPlayerColor(PossiblePawnList, Player), write(" (entrez le nom de celle que vous voulez jouer {'S1', ..., 'K'} ENTRE SIMPLES GUILLEMETS)"), nl,
 		read(Pawn),
-		/* dans le cas où la pièce est sur le plateau, on récupère les indices dans I et J et on continue le traitement,
-		 * sinon on redemande une pièce valide */
-		(member_one_occurence(Pawn, PossiblePawnList)
-			-> 	member_one_occurence(Pawn, UnusedPawnList), % dans le cas où il choisit un pion hors du jeu pour le remettre en jeu
-				%get list of all cells with the khan cell value
-				get_khan_cell_value(KhanCellValue)
+		
+
+		(member_one_occurence(Pawn, PossiblePawnList) % dans le cas où la pièce entrée est dans la liste des pièces possibles
+
+			-> 	(member_one_occurence(Pawn, UnusedPawnList) % dans le cas où il choisit un pion hors du jeu pour le remettre en jeu
+				
+				->	get_all_cells_according_to_khan_cell_value(MoveList), % la MoveList devient l'ensemble des cases du plateau libres et ayant la même valeur que la case sur laquelle est le khan
+					ask_pawn_new_placement(MoveList,Pawn,Player) % prédicat spécial lorsqu'on remet la pièce sur le plateau pour ne pas supprimer les positions de toutes les autres pièces présentes sur le plateau
 
 
-			; 	pawn(I, J, Pawn, Player), % avoir les coordonnées I et J
-				get_cell_value(I, J, CellValue), % récupérer la valeur de la case, puis l'ensemble des coups possibles et demander au joueur où il veut placer sa pièce
-				setof(ML, possible_moves(I,J,Player,CellValue,[(I,J)],ML), ML),
-				flatten(ML, MoveList),
-				ask_pawn_new_position(I,J,MoveList,Pawn,Player)
-			; 	write('Vous ne pouvez pas jouer cette pièce, recommencez SVP.'),
+				;	pawn(I, J, Pawn, Player), % avoir les coordonnées I et J
+					get_cell_value(I, J, CellValue), % récupérer la valeur de la case, puis l'ensemble des coups possibles et demander au joueur où il veut placer sa pièce
+					setof(ML, possible_moves(I,J,Player,CellValue,[(I,J)],ML), ML),
+					flatten(ML, MoveList),
+					ask_pawn_new_position(I,J,MoveList,Pawn,Player)
+				)
+			; 	writeInRed('Vous ne pouvez pas jouer cette pièce, recommencez SVP.'),
 				ask_movement_to_player(Player),!
 		).
 
@@ -431,7 +451,13 @@ get_other_player(ActualPlayer, Player_1) :- % si Player est le joueur 2, retourn
 human_vs_human_game_loop(Player) :-
 		ask_movement_to_player(Player),
 		get_other_player(Player, OtherPlayer),
-		human_vs_human_game_loop(OtherPlayer).
+		(player_win(Player)
+			-> 	writeWithPlayerColor('Bravo joueur ', Player),
+				writeWithPlayerColor(Player,Player),
+				writeWithPlayerColor(', vous avez gagné !!!',Player),nl
+			;	human_vs_human_game_loop(OtherPlayer)
+		).
+		
 
 
 human_vs_human_launch_game() :-
@@ -440,6 +466,13 @@ human_vs_human_launch_game() :-
 
 
 
+
+
+
+player_win(Player) :-
+		get_other_player(Player,OtherPlayer),
+		get_unused_player_pawns(OtherPlayer, UnusedPawnList),
+		member('K',UnusedPawnList),!.
 
 
 
