@@ -121,4 +121,4 @@ move_pawn(X, Y, NX, NY, Pawn, Player) :-
 reset_index():- retractall(i(_)), retractall(j(_)), asserta(i(1)), asserta(j(1)).
 reset_pawn():- 	retractall(pawn(_, _, _, _)).
 reset_khan() :- retractall(khan(_, _)).
-reset_all_dynamic_facts() :- reset_pawn(), reset_index().
+reset_all_dynamic_facts() :- reset_pawn(), reset_index(), reset_khan().
