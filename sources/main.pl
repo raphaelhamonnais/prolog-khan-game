@@ -6,7 +6,8 @@ include_sources() :-
 	[board_display],
 	[init_board],
 	[pawn_placement],
-	[tests_file].
+	[tests_file],
+	[ia].
 
 main() :- 
 	include_sources(), % inclure tous les fichiers

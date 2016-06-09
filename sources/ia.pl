@@ -1,0 +1,37 @@
+
+% ___________  Prédicats pratiques de détermination de stratégie  _______________
+
+% is_that_pawn_in_range(MoveList, Pawn, JoueurAdverse, X, Y)
+% renvoie une valeur de X, Y si et seulement si le pion adverse spécifié
+% est atteignable dans la liste de mouvements
+is_that_pawn_in_range([], Pawn, JoueurAdverse, X, Y) :-
+	fail.
+is_that_pawn_in_range([T|Q], Pawn, JoueurAdverse, X, Y) :-
+	pawn(X, Y, Pawn, JoueurAdverse),
+	T = [(X, Y)], !.
+is_that_pawn_in_range([T|Q], Pawn, JoueurAdverse, X, Y) :-
+	is_that_pawn_in_range(Q, Pawn, JoueurAdverse, X, Y), !.
+
+% ce prédicat vérifie si les pions de la liste PossiblePawnList
+% peuvent prendre le pion adverse renseigne en parametre
+% can_take_pawn(JoueurActif, PossiblePawnList, Pawn, JoueurAdverse, Move)
+can_take_pawn(JoueurActif, [], Pawn, JoueurAdverse, []).
+can_take_pawn(JoueurActif, [T|Q], Pawn, JoueurAdverse, Move) :-
+	pawn(X, Y, T, JoueurActif),
+	get_khan_cell_value(Range),
+	possible_moves(X, Y, JoueurActif, Range, AlreadySeens, MoveList),
+	is_that_pawn_in_range(MoveList, JoueurActif, Pawn, JoueurAdverse, X, Y),
+	Move = [(X, Y)], !.
+can_take_pawn(JoueurActif, [T|Q], Pawn, JoueurAdverse, Move) :-
+	can_take_pawn(JoueurActif, Q, Pawn, JoueurAdverse, Move), !.
+
+
+% ___________  Stratégie 1 : Prendre la Kalista Adverse  _______________
+
+% La première stratégie appellée est celle là :
+% Gagner la partie est de toute évidence le meilleur coup à jouer
+tryToTakeKalista(JoueurActif, JoueurAdverse, Move) :-
+	get_used_player_pawns(JoueurActif, UsedPawnList),
+	get_possible_pawn(JoueurActif, UsedPawnList, PossiblePawnList),
+	can_take_pawn(JoueurActif, PossiblePawnList, 'K', JoueurAdverse, Move).
+
