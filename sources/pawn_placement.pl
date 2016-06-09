@@ -86,7 +86,7 @@ finish_down(X, Y, NX, Player) :- NX is X+1, cell_in_board(NX,Y), no_pawn_player_
 get_cell_value(X, Y, CellValue) :-
 		activeBoard(Board),
 		element_position_n(X, Board, Wanted_Line),
-		element_position_n(Y, Wanted_Line, CellValue).
+		element_position_n(Y, Wanted_Line, CellValue),!.
 
 
 /*
@@ -94,7 +94,16 @@ get_cell_value(X, Y, CellValue) :-
  */
 get_khan_cell_value(CellValue) :-
 		khan(X,Y),
-		et_cell_value(X, Y, CellValue).
+		get_cell_value(X, Y, CellValue),!.
+
+
+cell_has_same_value_than_khan(X,Y) :-
+		get_cell_value(X, Y, CellValue),
+		get_khan_cell_value(KhanCellValue),
+		CellValue =:= KhanCellValue,!.
+cell_has_same_value_than_khan(X,Y) :-
+		get_cell_value(X, Y, CellValue),
+		\+get_khan_cell_value(KhanCellValue),!. % pour le premier coup de la partie, le khan n'est pas encore initialisé
 
 				% ===============================
 
@@ -108,7 +117,9 @@ place_pawn(X, Y, Pawn, Player) :-
 move_pawn(X, Y, NX, NY, Pawn, Player) :-
 		retractall(pawn(X, Y, _, Player)), % supprimer l'historique de la case
 		retractall(pawn(NX, NY, _, Player)), % supprimer l'historique de la case
-		asserta(pawn(NX,NY,Pawn,Player)). % ajouter la pièce
+		asserta(pawn(NX,NY,Pawn,Player)), % ajouter la pièce
+		reset_khan(),
+		asserta(khan(NX,NY)).
 
 				% ===============================
 
@@ -260,9 +271,12 @@ ask_one_player_initial_pawns_placement(Player, []).
  * ask_movement_to_player où il veut la placer
  */
 ask_movement_to_player(Player) :-
+		get_unused_player_pawns(Player, UnusedPawnList),
+		get_used_player_pawns(Player, UsedPawnList),
+		get_possible_pawn(Player, UsedPawnList, PossiblePawnList),
 		nl, write('Joueur '), write(Player), write(' --> '),
-		write('Quelle pièce voulez-vous jouer ? (entrez son nom : S1, S2, ..., K ENTRE SIMPLES GUILLEMETS)'), nl,
-		read(Pawn),!,
+		write("Pièces possibles : "), write(PossiblePawnList), write(" (entrez le nom de celle que vous voulez jouer {'S1', ..., 'K'} ENTRE SIMPLES GUILLEMETS)"), nl,
+		read(Pawn),
 		/* dans le cas où la pièce est sur le plateau, on récupère les indices dans I et J et on continue le traitement,
 		 * sinon on redemande une pièce valide */
 		(pawn(I, J, Pawn, Player) %TODO AND \+khan(_,_) alors ok, sinon, verifier qu'il joue bien une piece sur le meme type de case que le khan
@@ -273,6 +287,23 @@ ask_movement_to_player(Player) :-
 			; 	write('Vous ne pouvez pas jouer cette pièce, recommencez SVP.'),
 				ask_movement_to_player(Player),!
 		).
+
+
+
+/*
+ * Prédicat donnant la liste des pièces etant de même type que celle où est placée le khan
+ * get_possible_pawn(Player, UsedPawnList, PossiblePawnList)
+ */
+get_possible_pawn(_, [], []) :- !.
+get_possible_pawn(Player, [T|Q], [T|R]) :-
+		pawn(X,Y,T,Player), % réupérer les coordonées de la pièce en tête de liste
+		cell_has_same_value_than_khan(X,Y), % vérifier que la case est de même type que celle du khan
+		get_possible_pawn(Player,Q,R),!. % continuer le traitement en ayant ajouté la tete de liste à la liste des pions possibles
+
+get_possible_pawn(Player, [T|Q], PossiblePawnList) :-
+		get_possible_pawn(Player,Q,PossiblePawnList),!. % continuer le traitement en n'ayant pas ajouté la tete de liste à la liste des pions possibles
+
+		
 
 /*
  * Prédicat qui demande à un joueur de choisir la nouvelle position d'une pièce

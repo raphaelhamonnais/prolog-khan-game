@@ -76,6 +76,20 @@ construct_unused_pawns_list(Player, [PawnList_Head|Q], [PawnList_Head|PawnList_L
 
 construct_unused_pawns_list(Player, [], FullPawnList).
 
+
+
+construct_used_pawns_list(Player, [PawnList_Head|Q], [PawnList_Head|PawnList_Left]) :-
+		pawn(_, _, PawnList_Head, Player),
+		construct_used_pawns_list(Player, Q, PawnList_Left),
+		!.
+
+construct_used_pawns_list(Player, UsedPawnList, [PawnList_Head|PawnList_Left]) :-
+		\+pawn(_, _, PawnList_Head, Player),
+		construct_used_pawns_list(Player, UsedPawnList, PawnList_Left),
+		!.
+
+construct_used_pawns_list(Player, [], FullPawnList).
+
 /*
  * get_unused_player_pawns(Player, UnusedPawnList)
  * Prédicat permettant d'unifier UnusedPawnList avec l'ensemble des pions du Player qui ne sont pas sur le plateau
@@ -85,6 +99,9 @@ get_unused_player_pawns(Player, UnusedPawnList) :-
 		pawnList(FullPawnList),
 		construct_unused_pawns_list(Player, UnusedPawnList, FullPawnList).
 
+get_used_player_pawns(Player, UsedPawnList) :-
+		pawnList(FullPawnList),
+		construct_used_pawns_list(Player, UsedPawnList, FullPawnList).
 
 place_khan(X,Y) :-
 		cell_in_board(X,Y),
@@ -103,4 +120,5 @@ move_pawn(X, Y, NX, NY, Pawn, Player) :-
 
 reset_index():- retractall(i(_)), retractall(j(_)), asserta(i(1)), asserta(j(1)).
 reset_pawn():- 	retractall(pawn(_, _, _, _)).
+reset_khan() :- retractall(khan(_, _)).
 reset_all_dynamic_facts() :- reset_pawn(), reset_index().
