@@ -23,3 +23,16 @@ loukis_main():-
 	asserta(khan(1, 1)),
 	tryToTakeKalista(1, 2, Move),
 	print(Move).
+
+
+/*		TESTS
+get_used_player_pawns(1, UsedPawnList), get_possible_pawn(1, UsedPawnList, PossiblePawnList), can_take_pawn(1, PossiblePawnList, 'K', JoueurAdverse, Move).
+
+pawn(X, Y, 'S4', 1), get_khan_cell_value(Range), setof(ML, possible_moves(X, Y, 1, Range, [], ML), ML), flatten(ML, MoveList).
+
+pawn(X, Y, 'S4', 1), get_khan_cell_value(Range), setof(ML, possible_moves(X, Y, 1, Range, [], ML), ML), flatten(ML, MoveList), is_that_pawn_in_range(MoveList, 'K', 2, I, J).
+
+pawn(X, Y, 'K', 2), (3, 4) = (X, Y).
+
+is_that_pawn_in_range([ (3, 4), (4, 3), (4, 5), (5, 2), (5, 6)], 'K', 2, X, Y).
+*/

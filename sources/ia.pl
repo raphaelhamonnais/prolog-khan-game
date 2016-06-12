@@ -8,7 +8,7 @@ is_that_pawn_in_range([], Pawn, JoueurAdverse, X, Y) :-
 	fail.
 is_that_pawn_in_range([T|Q], Pawn, JoueurAdverse, X, Y) :-
 	pawn(X, Y, Pawn, JoueurAdverse),
-	T = [(X, Y)], !.
+	T = (X, Y), !.
 is_that_pawn_in_range([T|Q], Pawn, JoueurAdverse, X, Y) :-
 	is_that_pawn_in_range(Q, Pawn, JoueurAdverse, X, Y), !.
 
@@ -19,9 +19,10 @@ can_take_pawn(JoueurActif, [], Pawn, JoueurAdverse, []).
 can_take_pawn(JoueurActif, [T|Q], Pawn, JoueurAdverse, Move) :-
 	pawn(X, Y, T, JoueurActif),
 	get_khan_cell_value(Range),
-	possible_moves(X, Y, JoueurActif, Range, AlreadySeens, MoveList),
-	is_that_pawn_in_range(MoveList, JoueurActif, Pawn, JoueurAdverse, X, Y),
-	Move = [(X, Y)], !.
+	setof(ML, possible_moves(X, Y, JoueurActif, Range, [], ML), ML),
+	flatten(ML, MoveList),
+	is_that_pawn_in_range(MoveList, Pawn, JoueurAdverse, I, J),
+	Move = [(I, J)], !.
 can_take_pawn(JoueurActif, [T|Q], Pawn, JoueurAdverse, Move) :-
 	can_take_pawn(JoueurActif, Q, Pawn, JoueurAdverse, Move), !.
 
