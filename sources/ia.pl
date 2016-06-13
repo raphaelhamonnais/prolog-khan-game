@@ -27,6 +27,26 @@ can_take_pawn(JoueurActif, [T|Q], Pawn, JoueurAdverse, Move) :-
 	can_take_pawn(JoueurActif, Q, Pawn, JoueurAdverse, Move), !.
 
 
+% _________________  Obtenir les nombres menaçants  ____________________
+
+%voir getThreatNumbers qui récupère le backtrack de cette fonction
+getOneThreatNumber(JoueurActif, JoueurAdverse, CellValue) :-
+	pawn(X, Y, T, JoueurAdverse),
+	get_cell_value(X, Y, CellValue),
+	get_used_player_pawns(JoueurAdverse, UsedPawnList),
+	get_possible_pawn(JoueurAdverse, UsedPawnList, PossiblePawnList),
+	setof(ML, possible_moves(X, Y, JoueurAdverse, CellValue, [], ML), ML),
+	flatten(ML, MoveList),
+	is_that_pawn_in_range(MoveList, 'K', JoueurActif, I, J).
+
+
+% Permet de déterminer quelles pièces adverses peuvent prendre la kalista
+% au prochain tour. Retourne la liste des chiffres du plateau où se trouvent ces pions
+getThreatNumbers(JoueurActif, JoueurAdverse, ThreatNumbers) :-
+	setof(CV, getOneThreatNumber(JoueurActif, JoueurAdverse, CV), CV),
+	flatten(CV, ThreatNumbers).
+
+
 % ___________  Stratégie 1 : Prendre la Kalista Adverse  _______________
 
 % La première stratégie appellée est celle là :

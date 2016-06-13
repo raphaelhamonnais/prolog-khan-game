@@ -17,7 +17,7 @@ loukis_main():-
 	place_pawn(6, 3, 'S3', 1),
 	place_pawn(6, 4, 'S4', 1),
 	place_pawn(6, 5, 'S5', 1),
-	place_pawn(6, 6, 'K', 1),
+	place_pawn(2, 3, 'K', 1),
 	dynamic_display_active_board(),
 	%ask_movement_to_player(1),
 	asserta(khan(1, 1)),
