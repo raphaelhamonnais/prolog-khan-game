@@ -7,7 +7,14 @@
 % ========================================================================================
 
 
+writeWithPlayerColor(X, Player) :- 	Player =:= 1,
+									ansi_format([fg(green)], '~w', [X]),!.
+writeWithPlayerColor(X, Player) :- 	Player =:= 2,
+									ansi_format([fg(cyan)], '~w', [X]),!.
+writeInRed(X) :- ansi_format([fg(red)], '~w', [X]),!.
+%writeWithPlayerColor(X, Player) :- 	ansi_format([bold,fg(white)], '~w', [X]),!.
 
+%couleurs possibles : black, red, green, yellow, blue, magenta, cyan, white, default
 
 
 
@@ -15,15 +22,7 @@
 % ================      AFFICHAGE NON DYNAMIQUE (début du jeu)          ==================
 % ========================================================================================
 
-% Permet au joueur de choisir sa disposition suivant la lettre qu'il écrira sur la console
-chooseBoardDisplay('a', [[3,1,2,2,3,1], [2,3,1,3,1,2], [2,1,3,1,3,2], [1,3,2,2,1,3], [3,1,3,1,3,1], [2,2,1,3,2,2]]).
-chooseBoardDisplay('A', [[3,1,2,2,3,1], [2,3,1,3,1,2], [2,1,3,1,3,2], [1,3,2,2,1,3], [3,1,3,1,3,1], [2,2,1,3,2,2]]).
-chooseBoardDisplay('b', [[2,3,1,2,2,3], [2,1,3,1,3,1], [1,3,2,3,1,2], [3,1,2,1,3,2], [2,3,1,3,1,3], [2,1,3,2,2,1]]).
-chooseBoardDisplay('B', [[2,3,1,2,2,3], [2,1,3,1,3,1], [1,3,2,3,1,2], [3,1,2,1,3,2], [2,3,1,3,1,3], [2,1,3,2,2,1]]).
-chooseBoardDisplay('c', [[2,2,3,1,2,2], [1,3,1,3,1,3], [3,1,2,2,3,1], [2,3,1,3,1,2], [2,1,3,1,3,2], [1,3,2,2,1,3]]).
-chooseBoardDisplay('C', [[2,2,3,1,2,2], [1,3,1,3,1,3], [3,1,2,2,3,1], [2,3,1,3,1,2], [2,1,3,1,3,2], [1,3,2,2,1,3]]).
-chooseBoardDisplay('d', [[1,2,2,3,1,2], [3,1,3,1,3,2], [2,3,1,2,1,3], [2,1,3,2,3,1], [1,3,1,3,1,2], [3,2,2,1,3,2]]).
-chooseBoardDisplay('D', [[1,2,2,3,1,2], [3,1,3,1,3,2], [2,3,1,2,1,3], [2,1,3,2,3,1], [1,3,1,3,1,2], [3,2,2,1,3,2]]).
+
 
 
 

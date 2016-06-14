@@ -6,6 +6,8 @@ include_sources() :-
 	[board_display],
 	[init_board],
 	[pawn_placement],
+	[pawn_mouvement],
+	[game_loop],
 	[tests_file],
 	[ia].
 

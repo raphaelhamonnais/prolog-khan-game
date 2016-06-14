@@ -1,11 +1,4 @@
-writeWithPlayerColor(X, Player) :- 	Player =:= 1,
-									ansi_format([fg(green)], '~w', [X]),!.
-writeWithPlayerColor(X, Player) :- 	Player =:= 2,
-									ansi_format([fg(cyan)], '~w', [X]),!.
-writeInRed(X) :- ansi_format([fg(red)], '~w', [X]),!.
-%writeWithPlayerColor(X, Player) :- 	ansi_format([bold,fg(white)], '~w', [X]),!.
 
-%couleurs possibles : black, red, green, yellow, blue, magenta, cyan, white, default
 
 
 % removeHeadOfList(HeadWanted, List, NewListWithoutHead)

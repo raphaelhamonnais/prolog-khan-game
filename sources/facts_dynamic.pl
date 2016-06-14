@@ -34,7 +34,23 @@
 /*
  * Fait dynamique permettant de sauvegarder le plateau de jeu actif
  */
-:- dynamic (activeBoard/1).
+:-dynamic(activeBoard/1).
+
+
+
+% ========================================================================================
+% ==============        PREDICATS DE RESET DES FAITS DYNAMIQUES       ====================
+% ========================================================================================
+
+reset_activeBoard :- retractall(activeBoard(_)).
+reset_index():- retractall(i(_)), retractall(j(_)), asserta(i(1)), asserta(j(1)).
+reset_pawn():- 	retractall(pawn(_, _, _, _)).
+reset_khan() :- retractall(khan(_, _)).
+reset_all_dynamic_facts() :- reset_activeBoard(), reset_pawn(), reset_index(), reset_khan().
+
+
+
+
 
 
 
@@ -54,6 +70,51 @@ setI(I) :- retractall(i(_)), asserta(i(I)).
 setJ(J) :- retractall(j(_)), asserta(j(J)).
 incrementI(Nb) :- i(I), NI is I+Nb, setI(NI).
 incrementJ(Nb) :- j(J), NJ is J+Nb, setJ(NJ).
+
+
+
+
+/*
+ * Prédicat qui permet de savoir si une cellule possède un pion ou pas
+ */
+cell_empty(X, Y) :- \+ pawn(X, Y, Pawn, Player).
+
+
+
+/*
+ * Prédicat qui renvoie vrai si la cellule ne contient pas déjà un pion appartenant au joueur Player
+ */
+no_pawn_player_in_cell(X,Y,Player) :-
+		player1(Z), Player =:= Z, % dans le cas ou le Player = joueur 1 
+		\+pawn(X,Y,_,Player),!.
+no_pawn_player_in_cell(X,Y,Player) :-
+		player2(Z), Player =:= Z, % dans le cas ou le Player = joueur 2
+		\+pawn(X,Y,_,Player),!.
+
+
+
+
+/*
+ * Prédicat qui renvoie la valeur de la case où est placé le khan
+ */
+get_khan_cell_value(CellValue) :-
+		khan(X,Y),
+		get_cell_value(X, Y, CellValue),!.
+
+
+/*
+ * Prédicat qui renvoie vrai si la case X,Y a la même valeur que celle du khan
+ */
+cell_has_same_value_than_khan(X,Y) :-
+		get_cell_value(X, Y, CellValue),
+		get_khan_cell_value(KhanCellValue),
+		CellValue =:= KhanCellValue,!.
+/* Remarque : au début du jeu, le khan n'est pas placé, il faut donc renvoyer vrai si l'assertion ci-dessus ne passe pas.*/
+cell_has_same_value_than_khan(X,Y) :-
+		get_cell_value(X, Y, CellValue),
+		\+get_khan_cell_value(KhanCellValue),!. % pour le premier coup de la partie, le khan n'est pas encore initialisé
+
+
 
 
 
@@ -104,21 +165,27 @@ get_used_player_pawns(Player, UsedPawnList) :-
 
 place_khan(X,Y) :-
 		cell_in_board(X,Y),
-		retractall(khan(_, _)),
+		reset_khan(),
 		asserta(khan(X, Y)).
 
-move_pawn(X, Y, NX, NY, Pawn, Player) :-
+/*
+ * Permet de placer un pion : on supprime pour une case donnée les faits précédement enregistrés
+ * et on rajouter dynamiquement le fait que le pion Pawn du joueur Player est sur la case X Y
+ */
+place_pawn(X, Y, Pawn, Player) :-
 		retractall(pawn(X, Y, _, Player)), % supprimer l'historique de la case
-		retractall(pawn(NX, NY, _, Player)), % supprimer l'historique de la case
-		asserta(pawn(NX,NY,Pawn,Player)). % ajouter la pièce		
+		asserta(pawn(X,Y,Pawn,Player)). % ajouter la pièce
+
+move_pawn(X, Y, NX, NY, Pawn, Player) :-
+		retractall(pawn(X, Y, _, _)), % supprimer l'historique de la case
+		retractall(pawn(NX, NY, _, _)), % supprimer l'historique de la case
+		asserta(pawn(NX,NY,Pawn,Player)), % ajouter la pièce
+		place_khan(NX,NY).
 
 
-% ========================================================================================
-% ==============        PREDICATS DE RESET DES FAITS DYNAMIQUES       ====================
-% ========================================================================================
 
-reset_activeBoard :- retractall(activeBoard(_)).
-reset_index():- retractall(i(_)), retractall(j(_)), asserta(i(1)), asserta(j(1)).
-reset_pawn():- 	retractall(pawn(_, _, _, _)).
-reset_khan() :- retractall(khan(_, _)).
-reset_all_dynamic_facts() :- reset_activeBoard(), reset_pawn(), reset_index(), reset_khan().
+
+
+
+
+
