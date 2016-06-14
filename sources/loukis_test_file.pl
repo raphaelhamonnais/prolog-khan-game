@@ -21,9 +21,14 @@ loukis_main():-
 	dynamic_display_active_board(),
 	%ask_movement_to_player(1),
 	asserta(khan(1, 1)),
-	tryToTakeKalista(1, 2, Move),
+	tryToTakeKalista(2, 1, Move),
 	print(Move).
 
+
+loukis_afficher([]). % condition d'arrêt
+loukis_afficher([T|Q]):-
+    write(T),nl,
+    write(Q).
 
 /*		TESTS
 get_used_player_pawns(1, UsedPawnList), get_possible_pawn(1, UsedPawnList, PossiblePawnList), can_take_pawn(1, PossiblePawnList, 'K', JoueurAdverse, Move).

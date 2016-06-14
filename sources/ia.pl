@@ -15,16 +15,47 @@ is_that_pawn_in_range([T|Q], Pawn, JoueurAdverse, X, Y) :-
 % ce prédicat vérifie si les pions de la liste PossiblePawnList
 % peuvent prendre le pion adverse renseigne en parametre
 % can_take_pawn(JoueurActif, PossiblePawnList, Pawn, JoueurAdverse, Move)
-can_take_pawn(JoueurActif, [], Pawn, JoueurAdverse, []).
-can_take_pawn(JoueurActif, [T|Q], Pawn, JoueurAdverse, Move) :-
+can_take_pawn_r(JoueurActif, [], Pawn, JoueurAdverse, Range, []).
+can_take_pawn_r(JoueurActif, [T|Q], Pawn, JoueurAdverse, Range, Move) :-
 	pawn(X, Y, T, JoueurActif),
-	get_khan_cell_value(Range),
 	setof(ML, possible_moves(X, Y, JoueurActif, Range, [], ML), ML),
 	flatten(ML, MoveList),
 	is_that_pawn_in_range(MoveList, Pawn, JoueurAdverse, I, J),
-	Move = [(I, J)], !.
-can_take_pawn(JoueurActif, [T|Q], Pawn, JoueurAdverse, Move) :-
-	can_take_pawn(JoueurActif, Q, Pawn, JoueurAdverse, Move), !.
+	Move = [(X, Y, I, J, Pawn, I, J, 0, 0)].
+can_take_pawn_r(JoueurActif, [T|Q], Pawn, JoueurAdverse, Range, Move) :-
+	can_take_pawn_r(JoueurActif, Q, Pawn, JoueurAdverse, Range, Move).
+
+
+%récupère la liste de tous les mouvements possibles pour prendre un pion
+%fonctionne pour un pion particulier ou pour n'importe quels pions
+can_take_pawn(JoueurActif, JoueurAdverse, Pawn, MoveList) :-
+	get_used_player_pawns(JoueurActif, UsedPawnList),
+	get_possible_pawn(JoueurActif, UsedPawnList, PossiblePawnList),
+	get_khan_cell_value(Range),
+	setof(ML, can_take_pawn_r(JoueurActif, PossiblePawnList, Pawn, JoueurAdverse, Range, ML), ML),
+	flatten(ML, MoveList).
+
+
+% retourne tous les moves possibles d'un pion dans le format de move de l'IA
+get_pawn_moves(JoueurActif, JoueurAdverse, Pawn, MoveList) :-
+	pawn(X, Y, Pawn, JoueurActif),
+	get_khan_cell_value(Range),
+	setof(MLflat, possible_moves(X, Y, JoueurActif, Range, [], MLflat), MLflat),
+	flatten(MLflat, ML).
+
+
+truc(JoueurActif, JoueurAdverse, X, Y, [], []).
+truc(JoueurActif, JoueurAdverse, X, Y, [(I,J)|Q], MoveList) :- 
+	pawn(I, J, P, JoueurAdverse),
+	-> MoveList = [(X, Y, I, J, P, I, J, 0, 0)],
+	; MoveList = [(X, Y, I, J, 'V', 0, 0, 0, 0)].
+
+	
+	
+
+
+
+
 
 
 % _________________  Obtenir les nombres menaçants  ____________________
@@ -52,7 +83,5 @@ getThreatNumbers(JoueurActif, JoueurAdverse, ThreatNumbers) :-
 % La première stratégie appellée est celle là :
 % Gagner la partie est de toute évidence le meilleur coup à jouer
 tryToTakeKalista(JoueurActif, JoueurAdverse, Move) :-
-	get_used_player_pawns(JoueurActif, UsedPawnList),
-	get_possible_pawn(JoueurActif, UsedPawnList, PossiblePawnList),
-	can_take_pawn(JoueurActif, PossiblePawnList, 'K', JoueurAdverse, Move).
+	can_take_pawn(JoueurActif, JoueurAdverse, 'K', MoveList).
 
