@@ -280,6 +280,8 @@ joue(JoueurActif, JoueurAdverse, Depth) :-
 	[loukis_test_file].
 	loukis_main.
 	a.
+	joue(2,1,5).
+	dynamic_display_active_board.
 
 
 
