@@ -1,6 +1,17 @@
 
 % ___________  Prédicats pratiques de détermination de stratégie  _______________
 
+:-dynamic(bestPawn/1).
+
+% renvoie le joueur qui a gagné si la partie est finie
+% renvoie faux si la partie n'est pas finie
+game_ended(Player) :-
+	player_win(1).
+game_ended(Player) :-
+	player_win(2).
+
+
+
 % is_that_pawn_in_range(MoveList, Pawn, JoueurAdverse, X, Y)
 % renvoie une valeur de X, Y si et seulement si le pion adverse spécifié
 % est atteignable dans la liste de mouvements
@@ -49,10 +60,10 @@ get_IAMoveFormat_from_PossibleMovesList(JoueurActif, JoueurAdverse, X, Y, MyPawn
 get_IAMoveFormat(JoueurActif, JoueurAdverse, X, Y, MyPawn, (I,J), Move) :- 
 	(pawn(X, Y, MyPawn, JoueurActif)
 	->	(pawn(I, J, P, JoueurAdverse)
-		->	Move = [(X, Y, I, J, P, I, J, 0, 0)]
-		;	Move = [(X, Y, I, J, 'V', 0, 0, 0, 0)]
+		->	Move = (X, Y, I, J, P, I, J, 0, 0)
+		;	Move = (X, Y, I, J, 'V', 0, 0, 0, 0)
 		)
-	;	Move = [(0, 0, 0, 0, MyPawn, 0, 0, I, J)]
+	;	Move = (0, 0, 0, 0, MyPawn, 0, 0, I, J)
 	), !.
 
 
@@ -69,17 +80,23 @@ get_pawn_moves(JoueurActif, JoueurAdverse, Pawn, MoveList) :-
 	).
 
 
+% retourne la liste des pions jouables d'un joueur
+get_playable_player_pawns(Player, PossiblePawnList) :-
+	pawnList(FullPawnList), % utile dans le cas où le joueur n'a aucune pièce présente sur une case du même type que celle du Khan
+	get_unused_player_pawns(Player, UnusedPawnList), % utile dans le cas où le joueur possède des sbires qu'il peut remettre en jeu
+	get_used_player_pawns(Player, UsedPawnList), % liste des pions du joueur qui sont sur le plateau
+	get_possible_pawn(Player, UsedPawnList, PossiblePawnList_Tmp), % PossiblePawnList_Tmp contiendra la liste des pions du joueur qui sont sur une case du même type que la case actuelle du Khan
+	length(PossiblePawnList_Tmp,NumberOfPossiblePawns), % récupérer la longueur de la liste PossiblePawnList_Tmp
+	(NumberOfPossiblePawns =:= 0 % dans le cas où celle liste est vide, cela veut dire que le joueur n'a aucune pièce présente sur une case du même type que celle du Khan
+		-> union([], FullPawnList, PossiblePawnList) % alors il peut jouer l'ensemble de ses pièces, qu'elles soient présentes où non sur le plateau
+		; union([], PossiblePawnList_Tmp, PossiblePawnList) % sinon on unifie PossiblePawnList avec PossiblePawnList_Tmp et une liste vide
+	).
 
 
-
-
-
-
-
+% prédicats de check le type de mouvement
 is_placement_move((0,0,0,0,_,0,0,_,_)).
 is_simple_move((_,_,_,_,'V',0,0,0,0)).
 is_kill_pawn_move((_,_,X,Y,_,X,Y,0,0)).
-
 
 
 % applique le mouvement
@@ -87,28 +104,23 @@ apply_move(JoueurActif, JoueurAdverse, Pawn, (Xini, Yini, Xfin, Yfin, P, Iini, J
 	Move = (Xini, Yini, Xfin, Yfin, P, Iini, Jini, Ifin, Jfin),
 	(is_placement_move(Move)
 	->	place_pawn(Ifin, Jfin, P, JoueurActif)
-	;	move_pawn(Xini, Yini, Xfin, Yfin, P, JoueurActif)
+	;	move_pawn(Xini, Yini, Xfin, Yfin, Pawn, JoueurActif)
 	).
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+% revert move_pawn
+revert_move(JoueurDuMove, JoueurAdverse, Pawn, (Xini, Yini, Xfin, Yfin, P, Iini, Jini, Ifin, Jfin)) :-
+	Move = (Xini, Yini, Xfin, Yfin, P, Iini, Jini, Ifin, Jfin),
+	(is_placement_move(Move)
+	->	retractall(pawn(Ifin, Jfin, _, _)),
+		place_khan(Ifin, Jfin)
+	;	move_pawn(Xfin, Yfin, Xini, Yini, Pawn, JoueurDuMove),
+		(is_kill_pawn_move(Move)
+		->	place_pawn(Iini, Jini, P, JoueurAdverse)
+		;	is_simple_move(Move)
+		),
+		place_khan(Xini, Yini)
+	).
 
 
 % _________________  Obtenir les nombres menaçants  ____________________
@@ -128,7 +140,7 @@ getOneThreatNumber(JoueurActif, JoueurAdverse, CellValue) :-
 % Permet de déterminer quelles pièces adverses peuvent prendre la kalista
 % au prochain tour. Retourne la liste des chiffres du plateau où se trouvent ces pions
 getThreatNumbers(JoueurActif, JoueurAdverse, ThreatNumbers) :-
-	setof(CV, getOneThreatNumber(JoueurActif, JoueurAdverse, CV), CV),
+	findall(CV, getOneThreatNumber(JoueurActif, JoueurAdverse, CV), CV),
 	flatten(CV, ThreatNumbers).
 
 
@@ -142,6 +154,117 @@ tryToTakeKalista(JoueurActif, JoueurAdverse, Move) :-
 
 
 
+% ___________________  Stratégie min max  _______________________
+
+eval(JoueurActif, JoueurAdverse, Weight) :-
+	getThreatNumbers(JoueurActif, JoueurAdverse, TN),
+	getThreatNumbers(JoueurAdverse, JoueurActif, TNA),
+	set(TN, TNnodup),
+	set(TNA, TNAnodup),
+	length(TN, LTN),
+	length(TNA, LTNA),
+	length(TNnodup, LTNnodup),
+	length(TNAnodup, LTNAnodup),
+	Weight is LTNAnodup * LTNAnodup + LTNA - LTNnodup * LTNnodup - LTN.
+
+
+% fonction MIN
+
+min_move_iter(_, _, _, _, [], MinVal, BestMove, NewMinVal, NewBestMove) :-
+	NewMinVal = MinVal,
+	NewBestMove = BestMove.	
+min_move_iter(Depth, JoueurActif, JoueurAdverse, Pawn, [T|Q], MinVal, BestMove, NewMinVal, NewBestMove) :-
+	apply_move(JoueurActif, JoueurAdverse, Pawn, T),
+	D is Depth - 1,
+	max(JoueurAdverse, JoueurActif, D, Val),
+	(Val < MinVal
+	->	MinVal2 = Val, BestMove2 = T, retractall(bestPawn(_)), asserta(bestPawn(Pawn))
+	;	MinVal2 = MinVal, BestMove2 = BestMove
+	),
+	revert_move(JoueurActif, JoueurAdverse, Pawn, T),
+	min_move_iter(Depth, JoueurActif, JoueurAdverse, Pawn, Q, MinVal2, BestMove2, NewMinVal2, NewBestMove2),
+	NewMinVal = NewMinVal2,
+	NewBestMove = NewBestMove2.
+
+min_pawn_iter(_, _, _, [], MinVal, BestMove, NewMinVal, NewBestMove) :-
+	NewMinVal = MinVal,
+	NewBestMove = BestMove.
+min_pawn_iter(Depth, JoueurActif, JoueurAdverse, [T|Q], MinVal, BestMove, NewMinVal, NewBestMove) :-
+	get_pawn_moves(JoueurActif, JoueurAdverse, T, MoveList),
+	min_move_iter(Depth, JoueurActif, JoueurAdverse, T, MoveList, MinVal, BestMove, NewMinVal2, NewBestMove2),
+	min_pawn_iter(Depth, JoueurActif, JoueurAdverse, Q, NewMinVal2, NewBestMove2, NewMinVal3, NewBestMove3),
+	NewMinVal = NewMinVal3,
+	NewBestMove = NewBestMove3.
+
+min(JoueurActif, JoueurAdverse, Depth, Val) :-
+	(Depth = 0
+	->	eval(JoueurActif, JoueurAdverse, Val)
+	;	(game_ended(P)
+		->	eval(JoueurActif, JoueurAdverse, Val)
+		;	MinVal = 999,
+			get_playable_player_pawns(JoueurActif, PawnsList),
+			min_pawn_iter(Depth, JoueurActif, JoueurAdverse, PawnsList, MinVal, [], NewMinVal, NewBestMove),
+			Val = MinVal
+		)
+	).
+
+
+% fonction MAX
+
+max_move_iter(_, _, _, _, [], MaxVal, BestMove, NewMaxVal, NewBestMove) :-
+	NewMaxVal = MaxVal,
+	NewBestMove = BestMove.	
+max_move_iter(Depth, JoueurActif, JoueurAdverse, Pawn, [T|Q], MaxVal, BestMove, NewMaxVal, NewBestMove) :-
+	apply_move(JoueurActif, JoueurAdverse, Pawn, T),
+	D is Depth - 1,
+	min(JoueurAdverse, JoueurActif, D, Val),
+	(Val > MaxVal
+	->	MaxVal2 = Val, BestMove2 = T, retractall(bestPawn(_)), asserta(bestPawn(Pawn))
+	;	MaxVal2 = MaxVal, BestMove2 = BestMove
+	),
+	revert_move(JoueurActif, JoueurAdverse, Pawn, T),
+	max_move_iter(Depth, JoueurActif, JoueurAdverse, Pawn, Q, MaxVal2, BestMove2, NewMaxVal2, NewBestMove2),
+	NewMaxVal = NewMaxVal2,
+	NewBestMove = NewBestMove2.
+
+max_pawn_iter(_, _, _, [], MaxVal, BestMove, NewMaxVal, NewBestMove) :-
+	NewMaxVal = MaxVal,
+	NewBestMove = BestMove.
+max_pawn_iter(Depth, JoueurActif, JoueurAdverse, [T|Q], MaxVal, BestMove, NewMaxVal, NewBestMove) :-
+	get_pawn_moves(JoueurActif, JoueurAdverse, T, MoveList),
+	max_move_iter(Depth, JoueurActif, JoueurAdverse, T, MoveList, MaxVal, BestMove, NewMaxVal2, NewBestMove2),
+	max_pawn_iter(Depth, JoueurActif, JoueurAdverse, Q, NewMaxVal2, NewBestMove2, NewMaxVal3, NewBestMove3),
+	NewMaxVal = NewMaxVal3,
+	NewBestMove = NewBestMove3.
+
+max(JoueurActif, JoueurAdverse, Depth, Val) :-
+	(Depth = 0
+	->	eval(JoueurActif, JoueurAdverse, Val)
+	;	(game_ended(P)
+		->	eval(JoueurActif, JoueurAdverse, Val)
+		;	MaxVal = -999,
+			get_playable_player_pawns(JoueurActif, PawnsList),
+			max_pawn_iter(Depth, JoueurActif, JoueurAdverse, PawnsList, MaxVal, [], NewMaxVal, NewBestMove),
+			Val = NewMaxVal
+		)
+	).
+
+% Fonction JOUE
+
+joue(JoueurActif, JoueurAdverse, Depth) :-
+	MaxVal = -999,
+	get_playable_player_pawns(JoueurActif, PawnsList),
+	max_pawn_iter(Depth, JoueurActif, JoueurAdverse, PawnsList, MaxVal, [], NewMaxVal, NewBestMove),
+	MaxVal2 = NewMaxVal,
+	BestMove = NewBestMove,
+	bestPawn(Pawn),
+	apply_move(JoueurActif, JoueurAdvers, Pawn, BestMove),
+	retractall(bestPawn(_)), !.
+
+
+
+
+
 
 
 
@@ -151,6 +274,13 @@ tryToTakeKalista(JoueurActif, JoueurAdverse, Move) :-
 
 
 /*
+
+
+	[main].
+	[loukis_test_file].
+	loukis_main.
+	a.
+
 
 
  * Permet de placer un pion : on supprime pour une case donnée les faits précédement enregistrés
