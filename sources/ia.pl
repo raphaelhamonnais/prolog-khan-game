@@ -16,7 +16,7 @@ game_ended(Player) :-
 % renvoie une valeur de X, Y si et seulement si le pion adverse spécifié
 % est atteignable dans la liste de mouvements
 is_that_pawn_in_range([], Pawn, JoueurAdverse, X, Y) :-
-	fail.
+	false.
 is_that_pawn_in_range([T|Q], Pawn, JoueurAdverse, X, Y) :-
 	pawn(X, Y, Pawn, JoueurAdverse),
 	T = (X, Y), !.
