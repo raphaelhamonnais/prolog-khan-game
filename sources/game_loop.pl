@@ -38,3 +38,21 @@ human_vs_machine_launch_game() :-
 	player1(Joueur1),
 	player2(Joueur2),
 	human_vs_machine_game_loop(Joueur1).
+
+
+
+
+machine_vs_machine_game_loop(JoueurActif) :-
+	get_other_player(JoueurActif, JoueurAdverse),
+	joue(JoueurActif, JoueurAdverse, 3),
+	(player_win(JoueurActif)
+		-> 	writeWithPlayerColor('Bravo joueur ', JoueurActif),
+			writeWithPlayerColor(JoueurActif, JoueurActif),
+			writeWithPlayerColor(', vous avez gagné !!!', JoueurActif), nl
+		;	machine_vs_machine_game_loop(JoueurAdverse)
+	).
+
+machine_vs_machine_launch_game() :-
+	player1(Joueur1),
+	player2(Joueur2),
+	machine_vs_machine_game_loop(Joueur1).
