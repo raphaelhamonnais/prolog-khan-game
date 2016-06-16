@@ -40,8 +40,6 @@ initBoard() :- 	display_board_for_choose_side(),
 				retractall(activeBoard(_)),
 				asserta(activeBoard(BOARD)),
 				nl, write('Voici la disposition que vous avez choisie :'),nl, nl,
-				%asserta(pawn(1,1,'S1',1)), % a supprimer, juste pour tests
-				%asserta(pawn(1,3,'S1',2)), % a supprimer, juste pour tests
 				dynamic_display_board(BOARD),
 				!.
 
