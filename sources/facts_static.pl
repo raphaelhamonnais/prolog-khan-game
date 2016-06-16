@@ -1,6 +1,6 @@
-% Joueur1 a pour numéro 1
+% Joueur1 a pour numero 1
 player1(1).
-% Joueur2 a pour numéro 2
+% Joueur2 a pour numero 2
 player2(2).
 % Liste des pions possibles pour un joueur : 5 sbires (S) et une Kalista (K)
 pawnList(['S1', 'S2', 'S3', 'S4', 'S5', 'K']).
@@ -34,7 +34,7 @@ board_for_choose_side(
 				[' ', ' ', ' ',' ','a',' ',' ',' ',' ', ' ']
 			]).
 
-% Permet au joueur de choisir sa disposition suivant la lettre qu'il écrira sur la console
+% Permet au joueur de choisir sa disposition suivant la lettre qu'il ecrira sur la console
 chooseBoardDisplay('a', [[3,1,2,2,3,1], [2,3,1,3,1,2], [2,1,3,1,3,2], [1,3,2,2,1,3], [3,1,3,1,3,1], [2,2,1,3,2,2]]).
 chooseBoardDisplay('A', [[3,1,2,2,3,1], [2,3,1,3,1,2], [2,1,3,1,3,2], [1,3,2,2,1,3], [3,1,3,1,3,1], [2,2,1,3,2,2]]).
 chooseBoardDisplay('b', [[2,3,1,2,2,3], [2,1,3,1,3,1], [1,3,2,3,1,2], [3,1,2,1,3,2], [2,3,1,3,1,3], [2,1,3,2,2,1]]).
@@ -48,7 +48,7 @@ chooseBoardDisplay('D', [[1,2,2,3,1,2], [3,1,3,1,3,2], [2,3,1,2,1,3], [2,1,3,2,3
 
 
 /*
- * Prédicat qui renvoie la valeur d'une case d'indice X et Y
+ * Predicat qui renvoie la valeur d'une case d'indice X et Y
  */
 get_cell_value(X, Y, CellValue) :-
 		activeBoard(Board),
@@ -56,7 +56,7 @@ get_cell_value(X, Y, CellValue) :-
 		element_position_n(Y, Wanted_Line, CellValue),!.
 
 /*
- * Prédicat qui vérifie que les coordonnées X et Y sont dans le plateau
+ * Predicat qui verifie que les coordonnees X et Y sont dans le plateau
  */
 cell_in_board(X,Y) :- X >= 1, X =<6, Y >= 1, Y =<6.
 

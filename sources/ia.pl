@@ -1,9 +1,9 @@
 
-% ___________  Prédicats pratiques de détermination de stratégie  _______________
+% ___________  Predicats pratiques de determination de strategie  _______________
 
 :-dynamic(bestPawn/1).
 
-% renvoie le joueur qui a gagné si la partie est finie
+% renvoie le joueur qui a gagne si la partie est finie
 % renvoie faux si la partie n'est pas finie
 game_ended(Player) :-
 	player_win(1).
@@ -13,7 +13,7 @@ game_ended(Player) :-
 
 
 % is_that_pawn_in_range(MoveList, Pawn, JoueurAdverse, X, Y)
-% renvoie une valeur de X, Y si et seulement si le pion adverse spécifié
+% renvoie une valeur de X, Y si et seulement si le pion adverse specifie
 % est atteignable dans la liste de mouvements
 is_that_pawn_in_range([], Pawn, JoueurAdverse, X, Y) :-
 	false.
@@ -23,7 +23,7 @@ is_that_pawn_in_range([T|Q], Pawn, JoueurAdverse, X, Y) :-
 is_that_pawn_in_range([T|Q], Pawn, JoueurAdverse, X, Y) :-
 	is_that_pawn_in_range(Q, Pawn, JoueurAdverse, X, Y), !.
 
-% ce prédicat vérifie si les pions de la liste PossiblePawnList
+% ce predicat verifie si les pions de la liste PossiblePawnList
 % peuvent prendre le pion adverse renseigne en parametre
 % can_take_pawn(JoueurActif, PossiblePawnList, Pawn, JoueurAdverse, Move)
 can_take_pawn_r(JoueurActif, [], Pawn, JoueurAdverse, Range, []).
@@ -37,7 +37,7 @@ can_take_pawn_r(JoueurActif, [T|Q], Pawn, JoueurAdverse, Range, Move) :-
 	can_take_pawn_r(JoueurActif, Q, Pawn, JoueurAdverse, Range, Move).
 
 
-%récupère la liste de tous les mouvements possibles pour prendre un pion
+%recupere la liste de tous les mouvements possibles pour prendre un pion
 %fonctionne pour un pion particulier ou pour n'importe quels pions
 can_take_pawn(JoueurActif, JoueurAdverse, Pawn, MoveList) :-
 	get_used_player_pawns(JoueurActif, UsedPawnList),
@@ -47,8 +47,8 @@ can_take_pawn(JoueurActif, JoueurAdverse, Pawn, MoveList) :-
 	flatten(ML, MoveList).
 
 
-% permet d'obtenir une liste de move dans le format de l'IA à partir
-% des moves possibles d'une pièce (données par possible_moves)
+% permet d'obtenir une liste de move dans le format de l'IA a partir
+% des moves possibles d'une piece (donnees par possible_moves)
 get_IAMoveFormat_from_PossibleMovesList(JoueurActif, JoueurAdverse, X, Y, MyPawn, [], []).
 get_IAMoveFormat_from_PossibleMovesList(JoueurActif, JoueurAdverse, X, Y, MyPawn, [T|Q], [Move|ML]) :-
 	get_IAMoveFormat_from_PossibleMovesList(JoueurActif, JoueurAdverse, X, Y, MyPawn, Q, ML),
@@ -56,7 +56,7 @@ get_IAMoveFormat_from_PossibleMovesList(JoueurActif, JoueurAdverse, X, Y, MyPawn
 
 
 
-% Permet de convertir un Move donné par possible_moves dans le format de move de l'IA
+% Permet de convertir un Move donne par possible_moves dans le format de move de l'IA
 get_IAMoveFormat(JoueurActif, JoueurAdverse, X, Y, MyPawn, (I,J), Move) :- 
 	(pawn(X, Y, MyPawn, JoueurActif)
 	->	(pawn(I, J, P, JoueurAdverse)
@@ -82,18 +82,18 @@ get_pawn_moves(JoueurActif, JoueurAdverse, Pawn, MoveList) :-
 
 % retourne la liste des pions jouables d'un joueur
 get_playable_player_pawns(Player, PossiblePawnList) :-
-	pawnList(FullPawnList), % utile dans le cas où le joueur n'a aucune pièce présente sur une case du même type que celle du Khan
-	get_unused_player_pawns(Player, UnusedPawnList), % utile dans le cas où le joueur possède des sbires qu'il peut remettre en jeu
+	pawnList(FullPawnList), % utile dans le cas ou le joueur n'a aucune piece presente sur une case du meme type que celle du Khan
+	get_unused_player_pawns(Player, UnusedPawnList), % utile dans le cas ou le joueur possede des sbires qu'il peut remettre en jeu
 	get_used_player_pawns(Player, UsedPawnList), % liste des pions du joueur qui sont sur le plateau
-	get_possible_pawn(Player, UsedPawnList, PossiblePawnList_Tmp), % PossiblePawnList_Tmp contiendra la liste des pions du joueur qui sont sur une case du même type que la case actuelle du Khan
-	length(PossiblePawnList_Tmp,NumberOfPossiblePawns), % récupérer la longueur de la liste PossiblePawnList_Tmp
-	(NumberOfPossiblePawns =:= 0 % dans le cas où celle liste est vide, cela veut dire que le joueur n'a aucune pièce présente sur une case du même type que celle du Khan
-		-> union([], FullPawnList, PossiblePawnList) % alors il peut jouer l'ensemble de ses pièces, qu'elles soient présentes où non sur le plateau
+	get_possible_pawn(Player, UsedPawnList, PossiblePawnList_Tmp), % PossiblePawnList_Tmp contiendra la liste des pions du joueur qui sont sur une case du meme type que la case actuelle du Khan
+	length(PossiblePawnList_Tmp,NumberOfPossiblePawns), % recuperer la longueur de la liste PossiblePawnList_Tmp
+	(NumberOfPossiblePawns =:= 0 % dans le cas ou celle liste est vide, cela veut dire que le joueur n'a aucune piece presente sur une case du meme type que celle du Khan
+		-> union([], FullPawnList, PossiblePawnList) % alors il peut jouer l'ensemble de ses pieces, qu'elles soient presentes ou non sur le plateau
 		; union([], PossiblePawnList_Tmp, PossiblePawnList) % sinon on unifie PossiblePawnList avec PossiblePawnList_Tmp et une liste vide
 	).
 
 
-% prédicats de check le type de mouvement
+% predicats de check le type de mouvement
 is_placement_move((0,0,0,0,_,0,0,_,_)).
 is_simple_move((_,_,_,_,'V',0,0,0,0)).
 is_kill_pawn_move((_,_,X,Y,_,X,Y,0,0)).
@@ -126,7 +126,7 @@ revert_move(JoueurDuMove, JoueurAdverse, Pawn, (Xini, Yini, Xfin, Yfin, P, Iini,
 % _________________  Obtenir les nombres menaçants  ____________________
 
 
-%voir getThreatNumbers qui récupère le backtrack de cette fonction
+%voir getThreatNumbers qui recupere le backtrack de cette fonction
 getOneThreatNumber(JoueurActif, JoueurAdverse, CellValue) :-
 	pawn(X, Y, T, JoueurAdverse),
 	get_cell_value(X, Y, CellValue),
@@ -137,24 +137,24 @@ getOneThreatNumber(JoueurActif, JoueurAdverse, CellValue) :-
 	is_that_pawn_in_range(MoveList, 'K', JoueurActif, I, J).
 
 
-% Permet de déterminer quelles pièces adverses peuvent prendre la kalista
-% au prochain tour. Retourne la liste des chiffres du plateau où se trouvent ces pions
+% Permet de determiner quelles pieces adverses peuvent prendre la kalista
+% au prochain tour. Retourne la liste des chiffres du plateau ou se trouvent ces pions
 getThreatNumbers(JoueurActif, JoueurAdverse, ThreatNumbers) :-
 	findall(CV, getOneThreatNumber(JoueurActif, JoueurAdverse, CV), CV),
 	flatten(CV, ThreatNumbers).
 
 
 
-% ___________  Stratégie 1 : Prendre la Kalista Adverse  _______________
+% ___________  Strategie 1 : Prendre la Kalista Adverse  _______________
 
-% La première stratégie appellée est celle là :
-% Gagner la partie est de toute évidence le meilleur coup à jouer
+% La premiere strategie appellee est celle la :
+% Gagner la partie est de toute evidence le meilleur coup a jouer
 tryToTakeKalista(JoueurActif, JoueurAdverse, Move) :-
 	can_take_pawn(JoueurActif, JoueurAdverse, 'K', MoveList).
 
 
 
-% ___________________  Stratégie min max  _______________________
+% ___________________  Strategie min max  _______________________
 
 eval(JoueurActif, JoueurAdverse, Weight) :-
 	getThreatNumbers(JoueurActif, JoueurAdverse, TN),

@@ -8,11 +8,11 @@
 
 
 /*
-Définir un prédicat permettant de générer le plateau initial du jeu. Le prédicat gèrera le positionnement
-des pièces des différents joueurs. Il sera défini sous la forme:
+Definir un predicat permettant de generer le plateau initial du jeu. Le predicat gerera le positionnement
+des pieces des differents joueurs. Il sera defini sous la forme:
 initBoard( Board )
-Un autre prédicat devra afficher sur la console ce plateau de jeu, ainsi que l’interface du jeu
-permettant de rentrer la position de ces pièces au début du jeu ainsi que de sélectionner un coup à jouer
+Un autre predicat devra afficher sur la console ce plateau de jeu, ainsi que l’interface du jeu
+permettant de rentrer la position de ces pieces au debut du jeu ainsi que de selectionner un coup à jouer
 (pour un joueur Humain).
 */
 

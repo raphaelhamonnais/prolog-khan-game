@@ -22,7 +22,7 @@ main() :-
 
 /*
 launch_game :-
-	write('Entrez 1 pour jouer contre la machine, 2 pour jouer à deux joueurs.'),
+	write('Entrez 1 pour jouer contre la machine, 2 pour jouer a deux joueurs.'),
 	read(Choice),
 	launch_specific_game(Choice),!.
 
@@ -39,7 +39,7 @@ launch_specific_game(Choice) :-
 
 
 launch_game :-
-	write('Entrez 1 pour jouer contre la machine, 2 pour jouer à deux joueurs, 3 pour machine vs machine.'),
+	write('Entrez 1 pour jouer contre la machine, 2 pour jouer a deux joueurs, 3 pour machine vs machine.'),
 	read(Choice),
 	launch_specific_game(Choice),!.
 

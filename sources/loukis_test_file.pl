@@ -24,7 +24,7 @@ loukis_main():-
 	asserta(khan(1, 1)).
 
 
-loukis_afficher([]). % condition d'arrêt
+loukis_afficher([]). % condition d'arret
 loukis_afficher([T|Q]):-
     write(T),nl,
     write(Q).

@@ -12,7 +12,7 @@ accCp([H|T1],[H|T2]) :- accCp(T1,T2).
 
 
 /*
- * Avoir un élément à la position N dans une liste
+ * Avoir un element a la position N dans une liste
  *	element_position_n(PositionVoulue, Liste, ElementRetourne)
  */
 element_position_n(1, [T|_], T) :- !.

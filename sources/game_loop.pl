@@ -9,12 +9,12 @@ human_vs_human_game_loop(Player) :-
 		(player_win(Player)
 			-> 	writeWithPlayerColor('Bravo joueur ', Player),
 				writeWithPlayerColor(Player,Player),
-				writeWithPlayerColor(', vous avez gagné !!!',Player),nl
+				writeWithPlayerColor(', vous avez gagne !!!',Player),nl
 			;	human_vs_human_game_loop(OtherPlayer)
 		).
 		
 human_vs_human_launch_game() :-
-		player1(Player_1),player2(Player_2), % avoir les valeurs numériques correspondantes au joueur 1 et 2
+		player1(Player_1),player2(Player_2), % avoir les valeurs numeriques correspondantes au joueur 1 et 2
 		human_vs_human_game_loop(Player_1).
 
 
@@ -30,7 +30,7 @@ human_vs_machine_game_loop(JoueurActif) :-
 	(player_win(JoueurActif)
 		-> 	writeWithPlayerColor('Bravo joueur ', JoueurActif),
 			writeWithPlayerColor(JoueurActif, JoueurActif),
-			writeWithPlayerColor(', vous avez gagné !!!', JoueurActif), nl
+			writeWithPlayerColor(', vous avez gagne !!!', JoueurActif), nl
 		;	human_vs_machine_game_loop(JoueurAdverse)
 	).
 
@@ -48,7 +48,7 @@ machine_vs_machine_game_loop(JoueurActif) :-
 	(player_win(JoueurActif)
 		-> 	writeWithPlayerColor('Bravo joueur ', JoueurActif),
 			writeWithPlayerColor(JoueurActif, JoueurActif),
-			writeWithPlayerColor(', vous avez gagné !!!', JoueurActif), nl
+			writeWithPlayerColor(', vous avez gagne !!!', JoueurActif), nl
 		;	machine_vs_machine_game_loop(JoueurAdverse)
 	).
 

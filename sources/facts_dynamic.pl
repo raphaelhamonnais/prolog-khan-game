@@ -22,10 +22,10 @@
 
 
 /* 
- * Fait dynamique qui nous servira à gérer les pions des joueurs sur le plateau
+ * Fait dynamique qui nous servira a gerer les pions des joueurs sur le plateau
  *  Utilisation : pawn(i : Indice_ligne, j : Indice_colonne, Pion, Joueur)
  * 		- renvoie faux si pas de pion ij
- * 		- renvoie vrai s'il y a un pion à l'indice ij et unifie Pion et Joueur avec le 
+ * 		- renvoie vrai s'il y a un pion a l'indice ij et unifie Pion et Joueur avec le 
  		  les valeurs du pion et du joueur
  */
 :-dynamic(pawn/4).
@@ -75,14 +75,14 @@ incrementJ(Nb) :- j(J), NJ is J+Nb, setJ(NJ).
 
 
 /*
- * Prédicat qui permet de savoir si une cellule possède un pion ou pas
+ * Predicat qui permet de savoir si une cellule possede un pion ou pas
  */
 cell_empty(X, Y) :- \+ pawn(X, Y, Pawn, Player).
 
 
 
 /*
- * Prédicat qui renvoie vrai si la cellule ne contient pas déjà un pion appartenant au joueur Player
+ * Predicat qui renvoie vrai si la cellule ne contient pas deja un pion appartenant au joueur Player
  */
 no_pawn_player_in_cell(X,Y,Player) :-
 		player1(Z), Player =:= Z, % dans le cas ou le Player = joueur 1 
@@ -95,7 +95,7 @@ no_pawn_player_in_cell(X,Y,Player) :-
 
 
 /*
- * Prédicat qui renvoie la valeur de la case où est placé le khan
+ * Predicat qui renvoie la valeur de la case ou est place le khan
  */
 get_khan_cell_value(CellValue) :-
 		khan(X,Y),
@@ -103,16 +103,16 @@ get_khan_cell_value(CellValue) :-
 
 
 /*
- * Prédicat qui renvoie vrai si la case X,Y a la même valeur que celle du khan
+ * Predicat qui renvoie vrai si la case X,Y a la meme valeur que celle du khan
  */
 cell_has_same_value_than_khan(X,Y) :-
 		get_cell_value(X, Y, CellValue),
 		get_khan_cell_value(KhanCellValue),
 		CellValue =:= KhanCellValue,!.
-/* Remarque : au début du jeu, le khan n'est pas placé, il faut donc renvoyer vrai si l'assertion ci-dessus ne passe pas.*/
+/* Remarque : au debut du jeu, le khan n'est pas place, il faut donc renvoyer vrai si l'assertion ci-dessus ne passe pas.*/
 cell_has_same_value_than_khan(X,Y) :-
 		get_cell_value(X, Y, CellValue),
-		\+get_khan_cell_value(KhanCellValue),!. % pour le premier coup de la partie, le khan n'est pas encore initialisé
+		\+get_khan_cell_value(KhanCellValue),!. % pour le premier coup de la partie, le khan n'est pas encore initialise
 
 
 
@@ -123,7 +123,7 @@ cell_has_same_value_than_khan(X,Y) :-
 % ============================================================
 /*
  * construct_unused_pawns_list(Player, UnusedPawnList, FullPawnList)
- * Prédicat permettant d'unifier UnusedPawnList avec l'ensemble des pions du Player qui ne sont pas sur le plateau
+ * Predicat permettant d'unifier UnusedPawnList avec l'ensemble des pions du Player qui ne sont pas sur le plateau
  */
 construct_unused_pawns_list(Player, UnusedPawnList, [PawnList_Head|PawnList_Left]) :-
 		pawn(_, _, PawnList_Head, Player),
@@ -152,7 +152,7 @@ construct_used_pawns_list(Player, [], FullPawnList).
 
 /*
  * get_unused_player_pawns(Player, UnusedPawnList)
- * Prédicat permettant d'unifier UnusedPawnList avec l'ensemble des pions du Player qui ne sont pas sur le plateau
+ * Predicat permettant d'unifier UnusedPawnList avec l'ensemble des pions du Player qui ne sont pas sur le plateau
  * 		-> construit FullPawnList et appelle construct_unused_pawns_list
  */
 get_unused_player_pawns(Player, UnusedPawnList) :-
@@ -169,17 +169,17 @@ place_khan(X,Y) :-
 		asserta(khan(X, Y)).
 
 /*
- * Permet de placer un pion : on supprime pour une case donnée les faits précédement enregistrés
+ * Permet de placer un pion : on supprime pour une case donnee les faits precedement enregistres
  * et on rajouter dynamiquement le fait que le pion Pawn du joueur Player est sur la case X Y
  */
 place_pawn(X, Y, Pawn, Player) :-
 		retractall(pawn(X, Y, _, Player)), % supprimer l'historique de la case
-		asserta(pawn(X,Y,Pawn,Player)). % ajouter la pièce
+		asserta(pawn(X,Y,Pawn,Player)). % ajouter la piece
 
 move_pawn(X, Y, NX, NY, Pawn, Player) :-
 		retractall(pawn(X, Y, _, _)), % supprimer l'historique de la case
 		retractall(pawn(NX, NY, _, _)), % supprimer l'historique de la case
-		asserta(pawn(NX,NY,Pawn,Player)), % ajouter la pièce
+		asserta(pawn(NX,NY,Pawn,Player)), % ajouter la piece
 		place_khan(NX,NY).
 
 

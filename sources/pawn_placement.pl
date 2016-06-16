@@ -15,7 +15,7 @@
 
 
 /*
- * Prédicat de controle pour le placement des pions au début.
+ * Predicat de controle pour le placement des pions au debut.
  * Le joueur 1 doit les placer en bas, le joueur 2 en haut, et la case doit etre vide.
  */
 initial_pawn_placement_correct(Player, X, Y) :-
@@ -24,8 +24,8 @@ initial_pawn_placement_correct(Player, X, Y) :-
 
 
 /*
- * Prédicat qui vérifie que les coordonnées X et Y sont sur les deux premières lignes en face du joueur
- * pour l'initialisation des pièces au début du jeu
+ * Predicat qui verifie que les coordonnees X et Y sont sur les deux premieres lignes en face du joueur
+ * pour l'initialisation des pieces au debut du jeu
  */
  pawn_in_initial_lines(X,Y,Player) :-
  		player1(Z), Player =:= Z, % dans le cas ou le Player = joueur 1 
@@ -53,21 +53,21 @@ initial_pawn_placement_correct(Player, X, Y) :-
  */
 
 ask_initial_pawns_placement() :-
-		player1(Player_1),player2(Player_2), % avoir les valeurs numériques correspondantes au joueur 1 et 2
-		get_unused_player_pawns(Player_1, UnusedPawnList_Player_1), % avoir la liste des pions non placés du joueur 1
-		get_unused_player_pawns(Player_2, UnusedPawnList_Player_2), % avoir la liste des pions non placés du joueur 2
+		player1(Player_1),player2(Player_2), % avoir les valeurs numeriques correspondantes au joueur 1 et 2
+		get_unused_player_pawns(Player_1, UnusedPawnList_Player_1), % avoir la liste des pions non places du joueur 1
+		get_unused_player_pawns(Player_2, UnusedPawnList_Player_2), % avoir la liste des pions non places du joueur 2
 		nl,nl, write('----------  Placement des pions  ----------'),
-		nl, write('Joueur 1, à vous'), nl,
+		nl, write('Joueur 1, a vous'), nl,
 		ask_one_player_initial_pawns_placement(Player_1, UnusedPawnList_Player_1),
-		nl, write('Joueur 2, à vous'),
+		nl, write('Joueur 2, a vous'),
 		ask_one_player_initial_pawns_placement(Player_2, UnusedPawnList_Player_2),
-		nl, nl, write('Le plateau est maintenant prêt pour jouer :'),
+		nl, nl, write('Le plateau est maintenant pret pour jouer :'),
 		nl, nl,
 		dynamic_display_active_board().
 
 
 /*
- * Demander à un joueur précis de placer tout les pions situés dans la liste [PawnsList_Head|Q]
+ * Demander a un joueur precis de placer tout les pions situes dans la liste [PawnsList_Head|Q]
  */
 ask_one_player_initial_pawns_placement(Player, [PawnsList_Head|Q]) :-
 		nl, write('Placer le pion '), write(PawnsList_Head), nl,

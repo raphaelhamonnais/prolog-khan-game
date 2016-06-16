@@ -19,14 +19,14 @@ writeInRed(X) :- ansi_format([fg(red)], '~w', [X]),!.
 
 
 % ========================================================================================
-% ================      AFFICHAGE NON DYNAMIQUE (début du jeu)          ==================
+% ================      AFFICHAGE NON DYNAMIQUE (debut du jeu)          ==================
 % ========================================================================================
 
 
 
 
 
-% Prédicats d'affichage qui permettent d'afficher le plateau permettant de choisir un côté
+% Predicats d'affichage qui permettent d'afficher le plateau permettant de choisir un côte
 displayList([]).
 displayList([T|Q]) :- write(' '), write(T), displayList(Q),!.
 
@@ -48,83 +48,83 @@ display_board_for_choose_side :- board_for_choose_side(X), displayBoardClassic(X
 % ========================================================================================
 
 /* 
- * Prédicat qui affiche une ligne du plateau de jeu :
+ * Predicat qui affiche une ligne du plateau de jeu :
  *   Pour chaque case du plateau, s'il existe un pion sur cette case,
  *   alors on affiche ce pion avec la couleur du joueur, sinon on affiche
  *   un underscore.
  */
 dynamic_display_list([]).
 
-/* Prédicat spécial pour la Kalista afin que l'affichage soit aligné
-	car les pions ont deux caractère quand la Kalista n'en possède qu'un */
+/* Predicat special pour la Kalista afin que l'affichage soit aligne
+	car les pions ont deux caractere quand la Kalista n'en possede qu'un */
 dynamic_display_list([T|Q]) :- 
-		getI(I), getJ(J), % récupérer les valeurs courantes pour i et j
-		pawn(I, J, 'K', Player), % tester si la cellule i,j possède une Kalista
+		getI(I), getJ(J), % recuperer les valeurs courantes pour i et j
+		pawn(I, J, 'K', Player), % tester si la cellule i,j possede une Kalista
 		write(T), write('-'),
 		writeWithPlayerColor('K', Player), write('  '), % si c'est le cas, afficher avec les couleurs
-		write(' |  '), % séparer la case de la case suivante
-		incrementJ(1), % incrémenter j (colonne suivante) et l'enregistrer dans les faits dynamiques
+		write(' |  '), % separer la case de la case suivante
+		incrementJ(1), % incrementer j (colonne suivante) et l'enregistrer dans les faits dynamiques
 		dynamic_display_list(Q), !. % afficher le reste de la ligne
 
 dynamic_display_list([T|Q]) :- 
-		getI(I), getJ(J), % récupérer les valeurs courantes pour i et j
-		pawn(I, J, Pawn, Player), % tester si la cellule i,j possède un pion
+		getI(I), getJ(J), % recuperer les valeurs courantes pour i et j
+		pawn(I, J, Pawn, Player), % tester si la cellule i,j possede un pion
 		write(T), write('-'),
 		writeWithPlayerColor(Pawn, Player), write(' '), % si c'est le cas, afficher avec les couleurs
-		write(' |  '), % séparer la case de la case suivante
-		incrementJ(1), % incrémenter j (colonne suivante) et l'enregistrer dans les faits dynamiques
+		write(' |  '), % separer la case de la case suivante
+		incrementJ(1), % incrementer j (colonne suivante) et l'enregistrer dans les faits dynamiques
 		dynamic_display_list(Q), !. % afficher le reste de la ligne
 
 dynamic_display_list([T|Q]) :- 
-		getI(I), getJ(J), % récupérer les valeurs courantes pour i et j
+		getI(I), getJ(J), % recuperer les valeurs courantes pour i et j
 		write(T), write('-'),
 		write('_'), write('  '), % si pas de pion, afficher "_"
-		write(' |  '), % séparer la case de la case suivante
-		incrementJ(1), % incrémenter j (colonne suivante) et l'enregistrer dans les faits dynamiques
+		write(' |  '), % separer la case de la case suivante
+		incrementJ(1), % incrementer j (colonne suivante) et l'enregistrer dans les faits dynamiques
 		dynamic_display_list(Q), !. % afficher le reste de la ligne
 
 /*
 dynamic_display_list([T|Q]) :- 
-		getI(I), getJ(J), % récupérer les valeurs courantes pour i et j
+		getI(I), getJ(J), % recuperer les valeurs courantes pour i et j
 		write(T), write('-'),
-		(pawn(I, J, Pawn, Player) % tester si la cellule i,j possède un pion
+		(pawn(I, J, Pawn, Player) % tester si la cellule i,j possede un pion
 			-> writeWithPlayerColor(Pawn, Player), write(' ') % si c'est le cas, afficher avec les couleurs
 			; write('_'), write('  ') ), % sinon afficher "_"
-		incrementJ(1), % incrémenter j (colonne suivante) et l'enregistrer dans les faits dynamiques
+		incrementJ(1), % incrementer j (colonne suivante) et l'enregistrer dans les faits dynamiques
 		dynamic_display_list(Q), !. % afficher le reste de la ligne
 */
 
 /* 
- * Prédicat qui va appeler le predicat dynamic_display_list pour chaque ligne du plateau de jeu
+ * Predicat qui va appeler le predicat dynamic_display_list pour chaque ligne du plateau de jeu
  */
 dynamic_display_table([]).
 dynamic_display_table([T|Q]) :- 
-		getI(I), % récupérer la valeur courante pour i
+		getI(I), % recuperer la valeur courante pour i
 		write(I), write('  -- >    '), % afficher l'indice de ligne
-		write('|  '), % première barre de séparation en début de ligne
+		write('|  '), % premiere barre de separation en debut de ligne
 		dynamic_display_list(T),
 		nl,
-		write('            -----------------------------------------------------'), % séparer les lignes du plateau
+		write('            -----------------------------------------------------'), % separer les lignes du plateau
 		nl,
-		incrementI(1), setJ(1), % incrémenter i (ligne suivante) et remettre j à 0
+		incrementI(1), setJ(1), % incrementer i (ligne suivante) et remettre j a 0
 		dynamic_display_table(Q).
 
 /* 
- * Prédicat qui sert de lanceur au prédicat dynamic_display_table :
- *  il faut en effet que i et j (surtout i) soit initialisés à 0
+ * Predicat qui sert de lanceur au predicat dynamic_display_table :
+ *  il faut en effet que i et j (surtout i) soit initialises a 0
  */
 dynamic_display_board(Board) :-
-		reset_index(), % reset les asserts faits sur i et j, puis donne à i et j la valeur 1
+		reset_index(), % reset les asserts faits sur i et j, puis donne a i et j la valeur 1
 		nl,nl,
 		write('                1        2        3        4       5        6'), nl,
 		write('                v        v        v        v       v        v'), nl, nl,
-		write('            -----------------------------------------------------'), % première ligne de séparation
+		write('            -----------------------------------------------------'), % premiere ligne de separation
 		nl,
 		dynamic_display_table(Board).
 
 /* 
- * Prédicat "pratique" qui permet d'afficher directement l'activeBoard
- *  il faut en effet que i et j (surtout i) soit initialisés à 0
+ * Predicat "pratique" qui permet d'afficher directement l'activeBoard
+ *  il faut en effet que i et j (surtout i) soit initialises a 0
  */
 dynamic_display_active_board() :-
 		activeBoard(Board),
@@ -133,7 +133,7 @@ dynamic_display_active_board() :-
 		(khan(X,Y)
 			-> 	get_khan_cell_value(Value),
 				write(X), write(','), write(Y),
-				write('  --->  vous ne pouvez jouer que des pièces étant sur des cases de valeur '), write(Value), nl,nl,nl
+				write('  --->  vous ne pouvez jouer que des pieces etant sur des cases de valeur '), write(Value), nl,nl,nl
 
 			; 	write('Pas encore de Khan.'), nl
 		),
