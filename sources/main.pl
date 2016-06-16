@@ -20,24 +20,6 @@ main() :-
 	launch_game().
 
 
-/*
-launch_game :-
-	write('Entrez 1 pour jouer contre la machine, 2 pour jouer a deux joueurs.'),
-	read(Choice),
-	launch_specific_game(Choice),!.
-
-launch_specific_game(Choice) :-
-	(member(Choice, [1,2,3])
-		-> 	(Choice =:= 1
-				-> 	human_vs_machine_launch_game()
-				;	human_vs_human_launch_game()
-		)
-		; 	writeInRed('Mauvaise saisie. Recommencez'), nl, launch_game()
-	).
-*/
-
-
-
 launch_game :-
 	write('Entrez 1 pour jouer contre la machine, 2 pour jouer a deux joueurs, 3 pour machine vs machine.'),
 	read(Choice),
