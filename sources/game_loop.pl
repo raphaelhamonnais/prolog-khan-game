@@ -24,8 +24,8 @@ human_vs_human_launch_game() :-
 human_vs_machine_game_loop(JoueurActif) :-
 	get_other_player(JoueurActif, JoueurAdverse),
 	(JoueurActif =:= 1
-	->	ask_movement_to_player(JoueurActif)
-	;	joue(JoueurActif, JoueurAdverse, 3)
+		->	ask_movement_to_player(JoueurActif)
+		;	joue(JoueurActif, JoueurAdverse, 3)
 	),
 	(player_win(JoueurActif)
 		-> 	writeWithPlayerColor('Bravo joueur ', JoueurActif),
